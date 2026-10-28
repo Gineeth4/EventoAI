@@ -1,0 +1,408 @@
+/*
+ * EventoAI Design System
+ *
+ * Additive global styles for the redesigned experience.
+ * Existing pages retain their current styles until migrated.
+ */
+
+:root {
+  /* Color tokens */
+  --studio-forest: #214c40;
+  --studio-forest-deep: #16392f;
+  --studio-sage: #e8efe8;
+  --studio-sage-strong: #d5e4d6;
+  --studio-cream: #faf8f2;
+  --studio-coral: #ee987b;
+  --studio-gold: #d9b56d;
+  --studio-ink: #24352f;
+  --studio-muted: #727d75;
+  --studio-border: #e3e8df;
+  --studio-surface: #ffffff;
+  --studio-surface-soft: #fcfdfb;
+
+  /* Shape and depth */
+  --studio-radius-sm: 8px;
+  --studio-radius-md: 12px;
+  --studio-radius-lg: 18px;
+  --studio-radius-xl: 24px;
+  --studio-shadow-card:
+    0 8px 24px rgba(32, 58, 45, 0.055);
+  --studio-shadow-hover:
+    0 16px 36px rgba(32, 58, 45, 0.105);
+  --studio-shadow-focus:
+    0 0 0 3px rgba(76, 128, 103, 0.18);
+
+  /* Motion */
+  --studio-motion-fast: 150ms;
+  --studio-motion-normal: 220ms;
+  --studio-motion-slow: 380ms;
+  --studio-ease-standard: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --studio-ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Layering */
+  --studio-z-dropdown: 20;
+  --studio-z-sticky: 30;
+  --studio-z-overlay: 80;
+  --studio-z-toast: 100;
+}
+
+/* Reusable button primitive */
+
+.studio-button {
+  position: relative;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 17px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--studio-radius-md);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition:
+    transform var(--studio-motion-normal) var(--studio-ease-standard),
+    background-color var(--studio-motion-normal) ease,
+    border-color var(--studio-motion-normal) ease,
+    box-shadow var(--studio-motion-normal) ease,
+    color var(--studio-motion-normal) ease,
+    opacity var(--studio-motion-normal) ease;
+}
+
+.studio-button--primary {
+  background: var(--studio-forest);
+  color: #ffffff;
+  box-shadow: 0 5px 14px rgba(33, 76, 64, 0.13);
+}
+
+.studio-button--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: var(--studio-forest-deep);
+  box-shadow: 0 10px 22px rgba(33, 76, 64, 0.18);
+}
+
+.studio-button--secondary {
+  border-color: var(--studio-border);
+  background: var(--studio-surface);
+  color: var(--studio-forest);
+}
+
+.studio-button--secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #b9cdb8;
+  background: var(--studio-sage);
+}
+
+.studio-button--ghost {
+  background: transparent;
+  color: var(--studio-forest);
+}
+
+.studio-button--ghost:hover:not(:disabled) {
+  background: rgba(232, 239, 232, 0.75);
+}
+
+.studio-button--danger {
+  border-color: #efd6cf;
+  background: #fff5f2;
+  color: #963c30;
+}
+
+.studio-button--danger:hover:not(:disabled) {
+  background: #ffebe5;
+}
+
+.studio-button--sm {
+  min-height: 36px;
+  gap: 7px;
+  padding-inline: 12px;
+  border-radius: var(--studio-radius-sm);
+  font-size: 11px;
+}
+
+.studio-button--lg {
+  min-height: 52px;
+  gap: 11px;
+  padding-inline: 22px;
+  border-radius: 14px;
+  font-size: 13px;
+}
+
+.studio-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+  transform: none;
+}
+
+.studio-button__icon {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.studio-button__spinner {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: studio-spin 800ms linear infinite;
+}
+
+/* Reusable selectable concept or choice card */
+
+.studio-choice-card {
+  position: relative;
+  display: grid;
+  width: 100%;
+  gap: 10px;
+  padding: 20px;
+  overflow: hidden;
+  border: 1px solid var(--studio-border);
+  border-radius: var(--studio-radius-lg);
+  background: var(--studio-surface);
+  color: var(--studio-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--studio-shadow-card);
+  transition:
+    transform var(--studio-motion-normal) var(--studio-ease-standard),
+    border-color var(--studio-motion-normal) ease,
+    background-color var(--studio-motion-normal) ease,
+    box-shadow var(--studio-motion-normal) ease;
+}
+
+.studio-choice-card::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--studio-forest);
+  content: "";
+  opacity: 0;
+  transform: scaleY(0.5);
+  transform-origin: center;
+  transition:
+    opacity var(--studio-motion-normal) ease,
+    transform var(--studio-motion-normal) var(--studio-ease-standard);
+}
+
+.studio-choice-card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: #bdcfbd;
+  box-shadow: var(--studio-shadow-hover);
+}
+
+.studio-choice-card[data-selected="true"] {
+  border-color: var(--studio-forest);
+  background: linear-gradient(
+    145deg,
+    #ffffff 0%,
+    #f2f7f0 100%
+  );
+  box-shadow:
+    0 0 0 1px var(--studio-forest),
+    var(--studio-shadow-card);
+}
+
+.studio-choice-card[data-selected="true"]::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.studio-choice-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.studio-choice-card__eyebrow {
+  color: var(--studio-forest);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.studio-choice-card__title {
+  color: var(--studio-ink);
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+}
+
+.studio-choice-card__description {
+  color: var(--studio-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.studio-choice-card__icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--studio-forest);
+}
+
+/* Reusable section heading */
+
+.studio-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.studio-section-heading__text {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.studio-section-heading__eyebrow {
+  color: var(--studio-forest);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.studio-section-heading__title {
+  margin: 0;
+  color: var(--studio-ink);
+  font-size: clamp(22px, 3vw, 31px);
+  font-weight: 850;
+  letter-spacing: -0.045em;
+  line-height: 1.2;
+}
+
+.studio-section-heading__description {
+  max-width: 660px;
+  margin: 0;
+  color: var(--studio-muted);
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.studio-section-heading__action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Surfaces and page-entry animation */
+
+.studio-surface {
+  border: 1px solid var(--studio-border);
+  border-radius: var(--studio-radius-lg);
+  background: var(--studio-surface);
+  box-shadow: var(--studio-shadow-card);
+}
+
+.studio-motion-enter {
+  animation: studio-fade-up var(--studio-motion-slow)
+    var(--studio-ease-standard) both;
+}
+
+.studio-motion-enter--delayed {
+  animation-delay: 80ms;
+}
+
+.studio-motion-enter--delayed-2 {
+  animation-delay: 160ms;
+}
+
+@keyframes studio-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes studio-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Keyboard accessibility */
+
+.studio-button:focus-visible,
+.studio-choice-card:focus-visible {
+  outline: none;
+  box-shadow: var(--studio-shadow-focus);
+}
+
+.studio-choice-card[data-selected="true"]:focus-visible {
+  box-shadow:
+    0 0 0 1px var(--studio-forest),
+    var(--studio-shadow-focus);
+}
+
+/* Touch devices do not depend on hover for state information. */
+@media (hover: none) {
+  .studio-button:hover:not(:disabled),
+  .studio-choice-card:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Respect system accessibility preferences. */
+@media (prefers-reduced-motion: reduce) {
+  .studio-button,
+  .studio-choice-card,
+  .studio-choice-card::before {
+    scroll-behavior: auto;
+    animation: none;
+    transition: none;
+  }
+
+  .studio-motion-enter,
+  .studio-motion-enter--delayed,
+  .studio-motion-enter--delayed-2 {
+    animation: none;
+  }
+
+  .studio-button__spinner {
+    animation: none;
+    border-right-color: currentColor;
+  }
+}
+
+@media (max-width: 620px) {
+  .studio-choice-card {
+    padding: 16px;
+    border-radius: var(--studio-radius-md);
+  }
+
+  .studio-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .studio-section-heading__action {
+    width: 100%;
+  }
+}

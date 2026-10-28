@@ -1,0 +1,11 @@
+.git
+.vercel
+node_modules
+.next
+.env*
+**/*.bak
+**/*.before-*
+test-results
+playwright-report
+playwright/.cache
+coverage

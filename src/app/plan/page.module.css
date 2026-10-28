@@ -1,0 +1,139 @@
+.page {
+  min-height: 100vh;
+  padding: 24px 0 72px;
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(213, 228, 214, 0.42),
+      transparent 32rem
+    ),
+    var(--brand-cream);
+}
+
+.container {
+  width: min(920px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brandIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--brand-forest);
+  color: white;
+}
+
+.brand > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.brand strong {
+  color: var(--brand-ink);
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+}
+
+.brand small {
+  color: var(--brand-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-forest);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding: 14px 16px;
+  border: 1px solid #dce8d9;
+  border-radius: 11px;
+  background: #f1f6ee;
+  color: #49684e;
+}
+
+.notice svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.notice p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+.footer {
+  margin-top: 28px;
+  padding-top: 19px;
+  border-top: 1px solid var(--brand-line);
+}
+
+.footer p {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding-top: 17px;
+  }
+
+  .container {
+    width: calc(100% - 28px);
+  }
+
+  .header {
+    align-items: flex-start;
+    margin-bottom: 22px;
+  }
+
+  .brandIcon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand small {
+    font-size: 8px;
+  }
+
+  .backLink {
+    gap: 5px;
+    font-size: 10px;
+  }
+}

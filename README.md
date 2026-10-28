@@ -11,7 +11,7 @@ Whether you are organizing a birthday, planning a wedding, or coordinating a com
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
 ![Testing](https://img.shields.io/badge/Tests-Vitest%20%7C%20Playwright-6E9F18)
 
-> **Live demo:** Coming soon. The public production URL will be added here after deployment and verification.
+> **Live demo:** [https://eventoai.vercel.app](https://eventoai.vercel.app)
 
 **Repository:** [Gineeth4/EventoAI](https://github.com/Gineeth4/EventoAI)
 

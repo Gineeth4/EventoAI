@@ -81,47 +81,72 @@ function isValidCalendarDate(value: unknown): value is string {
   return day >= 1 && day <= maximumDay;
 }
 
+function isSavedEventLocation(
+  value: unknown,
+): value is SavedEventInput["location"] {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.city === "string" &&
+    typeof value.country === "string" &&
+    typeof value.venueType === "string"
+  );
+}
+
+function isSavedEventBudget(
+  value: unknown,
+): value is SavedEventInput["budget"] {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.currency === "string" &&
+    value.currency.trim().length > 0 &&
+    typeof value.totalAmount === "number" &&
+    Number.isFinite(value.totalAmount) &&
+    value.totalAmount > 0 &&
+    typeof value.contingencyPercent === "number" &&
+    Number.isFinite(value.contingencyPercent) &&
+    value.contingencyPercent >= 0 &&
+    value.contingencyPercent <= 50
+  );
+}
+
+function isSavedEventPreferences(
+  value: unknown,
+): value is SavedEventInput["preferences"] {
+  if (!isObject(value)) {
+    return false;
+  }
+
+  return (
+    isStringArray(value.preferredThemes) &&
+    isStringArray(value.preferredStyles) &&
+    typeof value.notes === "string"
+  );
+}
+
 function isSavedEventInput(value: unknown): value is SavedEventInput {
   if (!isObject(value)) {
     return false;
   }
 
-  const location = value.location;
-  const budget = value.budget;
-  const preferences = value.preferences;
-
-  if (
-    typeof value.eventType !== "string" ||
-    typeof value.title !== "string" ||
-    !value.title.trim() ||
-    !isValidCalendarDate(value.eventDate) ||
-    typeof value.guestCount !== "number" ||
-    !Number.isFinite(value.guestCount) ||
-    value.guestCount < 1 ||
-    !isObject(location) ||
-    typeof location.city !== "string" ||
-    typeof location.country !== "string" ||
-    typeof location.venueType !== "string" ||
-    !isObject(budget) ||
-    typeof budget.currency !== "string" ||
-    !budget.currency.trim() ||
-    typeof budget.totalAmount !== "number" ||
-    !Number.isFinite(budget.totalAmount) ||
-    budget.totalAmount <= 0 ||
-    typeof budget.contingencyPercent !== "number" ||
-    !Number.isFinite(budget.contingencyPercent) ||
-    budget.contingencyPercent < 0 ||
-    budget.contingencyPercent > 50 ||
-    !isObject(preferences) ||
-    !isStringArray(preferences.preferredThemes) ||
-    !isStringArray(preferences.preferredStyles) ||
-    typeof preferences.notes !== "string" ||
-    !isStringArray(value.planningPriorities)
-  ) {
-    return false;
-  }
-
-  return true;
+  return (
+    typeof value.eventType === "string" &&
+    typeof value.title === "string" &&
+    value.title.trim().length > 0 &&
+    isValidCalendarDate(value.eventDate) &&
+    typeof value.guestCount === "number" &&
+    Number.isFinite(value.guestCount) &&
+    value.guestCount >= 1 &&
+    isSavedEventLocation(value.location) &&
+    isSavedEventBudget(value.budget) &&
+    isSavedEventPreferences(value.preferences) &&
+    isStringArray(value.planningPriorities)
+  );
 }
 
 function isPlanResult(value: unknown): value is PlanResult {

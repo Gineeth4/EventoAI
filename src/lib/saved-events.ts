@@ -34,6 +34,53 @@ function isValidDateTime(value: unknown): value is string {
     Number.isFinite(Date.parse(value));
 }
 
+/**
+ * Validates an exact YYYY-MM-DD calendar date without accepting
+ * impossible dates that JavaScript Date.parse may normalize.
+ */
+function isValidCalendarDate(value: unknown): value is string {
+  if (typeof value !== "string" || value.length !== 10) {
+    return false;
+  }
+
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+
+  if (!match) {
+    return false;
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+
+  if (month < 1 || month > 12) {
+    return false;
+  }
+
+  const isLeapYear =
+    year % 4 === 0 &&
+    (year % 100 !== 0 || year % 400 === 0);
+
+  const daysPerMonth = [
+    31,
+    isLeapYear ? 29 : 28,
+    31,
+    30,
+    31,
+    30,
+    31,
+    31,
+    30,
+    31,
+    30,
+    31,
+  ];
+
+  const maximumDay = daysPerMonth[month - 1];
+
+  return day >= 1 && day <= maximumDay;
+}
+
 function isSavedEventInput(value: unknown): value is SavedEventInput {
   if (!isObject(value)) {
     return false;
@@ -47,9 +94,7 @@ function isSavedEventInput(value: unknown): value is SavedEventInput {
     typeof value.eventType !== "string" ||
     typeof value.title !== "string" ||
     !value.title.trim() ||
-    typeof value.eventDate !== "string" ||
-    !/^\d{4}-\d{2}-\d{2}$/.test(value.eventDate) ||
-    !Number.isFinite(Date.parse(value.eventDate)) ||
+    !isValidCalendarDate(value.eventDate) ||
     typeof value.guestCount !== "number" ||
     !Number.isFinite(value.guestCount) ||
     value.guestCount < 1 ||

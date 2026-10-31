@@ -1,11 +1,11 @@
 /**
- * EventoAI  -  Event-plan API
+ * EventoAI event-plan API.
  *
  * POST /api/ai/plan
  *
- * This endpoint is for local development and integration testing.
- * Do not expose it publicly until authentication and distributed
- * server-side rate limiting are implemented.
+ * Requests are protected by origin validation, authentication,
+ * server-side rate limits, bounded request-body parsing, schema
+ * validation, and safe public error responses.
  */
 
 import { NextResponse } from "next/server";
@@ -50,25 +50,13 @@ function jsonResponse(
   });
 }
 
-export async function POST(request: Request) {
-  // Browser-origin check. Requests without Origin are handled as
-  // non-browser calls and remain subject to rate limiting.
-  if (!isSameOriginRequest(request)) {
-    return jsonResponse(
-      {
-        error: {
-          code: "CROSS_ORIGIN_REQUEST",
-          message: "Cross-origin requests are not allowed.",
-        },
-      },
-      403,
-    );
-  }
+type PlanRateLimitResult = Awaited<
+  ReturnType<typeof consumePlanApiRateLimit>
+>;
 
-  const rateLimit = await consumePlanApiRateLimit(
-    getPlanApiClientKey(request),
-  );
-
+function getPlanRateLimitErrorResponse(
+  rateLimit: PlanRateLimitResult,
+): NextResponse | null {
   if (rateLimit.configurationMissing) {
     return jsonResponse(
       {
@@ -109,6 +97,35 @@ export async function POST(request: Request) {
         "Retry-After": String(rateLimit.retryAfterSeconds),
       },
     );
+  }
+
+  return null;
+}
+
+export async function POST(request: Request) {
+  // Browser-origin check. Requests without Origin are handled as
+  // non-browser calls and remain subject to rate limiting.
+  if (!isSameOriginRequest(request)) {
+    return jsonResponse(
+      {
+        error: {
+          code: "CROSS_ORIGIN_REQUEST",
+          message: "Cross-origin requests are not allowed.",
+        },
+      },
+      403,
+    );
+  }
+
+  const rateLimit = await consumePlanApiRateLimit(
+    getPlanApiClientKey(request),
+  );
+
+  const ipRateLimitResponse =
+    getPlanRateLimitErrorResponse(rateLimit);
+
+  if (ipRateLimitResponse) {
+    return ipRateLimitResponse;
   }
 
   let authenticatedUserId: string;
@@ -170,47 +187,13 @@ export async function POST(request: Request) {
     `user:${authenticatedUserId}`,
   );
 
-  if (userRateLimit.configurationMissing) {
-    return jsonResponse(
-      {
-        error: {
-          code: "RATE_LIMITER_NOT_CONFIGURED",
-          message: "The planning service is temporarily unavailable. Please try again later.",
-          retryable: true,
-        },
-      },
-      503,
-    );
+  const userRateLimitResponse =
+    getPlanRateLimitErrorResponse(userRateLimit);
+
+  if (userRateLimitResponse) {
+    return userRateLimitResponse;
   }
 
-  if (userRateLimit.serviceUnavailable) {
-    return jsonResponse(
-      {
-        error: {
-          code: "RATE_LIMITER_UNAVAILABLE",
-          message: "The planning service is temporarily unavailable. Please try again later.",
-          retryable: true,
-        },
-      },
-      503,
-    );
-  }
-
-  if (!userRateLimit.allowed) {
-    return jsonResponse(
-      {
-        error: {
-          code: "API_RATE_LIMITED",
-          message: "Too many planning requests. Please wait before trying again.",
-          retryable: true,
-        },
-      },
-      429,
-      {
-        "Retry-After": String(userRateLimit.retryAfterSeconds),
-      },
-    );
-  }
   const contentType = request.headers.get("content-type") ?? "";
 
   if (!/^application\/json(?:\s*;|$)/i.test(contentType)) {

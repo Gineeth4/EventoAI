@@ -159,6 +159,41 @@ describe("saved event storage", () => {
     ).toEqual([]);
   });
 
+  it.each([
+  { eventDate: "2024-02-29", expectedValid: true },
+  { eventDate: "2026-02-28", expectedValid: true },
+  { eventDate: "2026-04-30", expectedValid: true },
+  { eventDate: "2026-02-29", expectedValid: false },
+  { eventDate: "2026-02-31", expectedValid: false },
+  { eventDate: "2026-04-31", expectedValid: false },
+  { eventDate: "2026-13-01", expectedValid: false },
+  { eventDate: "2026-00-10", expectedValid: false },
+  { eventDate: "2026-01-00", expectedValid: false },
+  { eventDate: "2026-01-32", expectedValid: false },
+  { eventDate: "2026-2-01", expectedValid: false },
+])(
+  "validates calendar date $eventDate",
+  ({ eventDate, expectedValid }) => {
+    const record = saveEventRecord({
+      id: "event-date-validation",
+      input: sampleInput,
+      result: createSampleResult("Date validation"),
+    });
+
+    const candidate = {
+      ...record,
+      input: {
+        ...record.input,
+        eventDate,
+      },
+    };
+
+    expect(
+      parseSavedEventsSnapshot(JSON.stringify([candidate])),
+    ).toHaveLength(expectedValid ? 1 : 0);
+  },
+);
+
   it("migrates valid schema-v1 records and preserves their initial snapshot", () => {
     storage.set(
       LEGACY_STORAGE_KEY,

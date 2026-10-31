@@ -47,3 +47,9 @@ test("unauthenticated visitors are redirected away from My Events", async ({
 
   await expect(page).toHaveURL(/\/login\?next=/);
 });
+test("unauthenticated visitors are redirected away from the planner", async ({
+  page,
+}) => {
+  await page.goto("/plan");
+  await expect(page).toHaveURL(/\/login\?next=/);
+});

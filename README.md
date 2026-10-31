@@ -1,17 +1,21 @@
-# EventoAI
+# EventoAI V2
 
-### From a rough event idea to a plan you can act on.
+### From a rough event idea to an intelligent, actionable event plan.
 
-EventoAI is an AI-powered event planning assistant that helps turn ideas into structured, personalized, and actionable plans. It brings event planning, budget calculations, timelines, recommendations, and change-impact analysis into one workspace.
+EventoAI is an AI-powered event planning assistant that transforms event ideas into structured, personalized, and actionable plans.
 
-Whether you are organizing a birthday, planning a wedding, or coordinating a community gathering, EventoAI helps you understand what needs to happen, what it may cost, and what changes when your plans evolve.
+It brings event planning, budget calculations, preparation timelines, recommendations, and change-impact analysis into one integrated workspace.
+
+Whether organizing a birthday, planning a wedding, or coordinating a community gathering, EventoAI helps users understand what needs to happen, what it may cost, and how changes affect the overall plan.
 
 [![CI](https://github.com/Gineeth4/EventoAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Gineeth4/EventoAI/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js-16.4.2-black?logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)
-![Testing](https://img.shields.io/badge/Tests-Vitest%20%7C%20Playwright-6E9F18)
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)
+![Tests](https://img.shields.io/badge/Tests-Vitest%20%7C%20Playwright-6E9F18)
+![Accessibility](https://img.shields.io/badge/Accessibility-axe--core-green)
 
-> **Live demo:** [https://eventoai.vercel.app](https://eventoai.vercel.app)
+**Live demo:** [https://eventoai.vercel.app](https://eventoai.vercel.app)
 
 **Repository:** [Gineeth4/EventoAI](https://github.com/Gineeth4/EventoAI)
 
@@ -19,130 +23,301 @@ Whether you are organizing a birthday, planning a wedding, or coordinating a com
 
 ## Contents
 
-- [Why EventoAI?](#why-eventoai)
-- [What it can do](#what-it-can-do)
-- [How it works](#how-it-works)
-- [What makes it different](#what-makes-it-different)
-- [Technology stack](#technology-stack)
-- [Project structure](#project-structure)
-- [Getting started](#getting-started)
-- [Environment variables](#environment-variables)
-- [Database and authentication](#database-and-authentication)
-- [Testing and quality checks](#testing-and-quality-checks)
-- [Security and privacy](#security-and-privacy)
-- [Current limitations](#current-limitations)
-- [Future direction](#future-direction)
-- [Contributing](#contributing)
-- [License](#license)
+- [1. Project overview](#1-project-overview)
+- [2. The problem](#2-the-problem)
+- [3. Features](#3-features)
+- [4. How EventoAI works](#4-how-eventoai-works)
+- [5. What's improved in V2](#5-whats-improved-in-v2)
+- [6. Technology stack](#6-technology-stack)
+- [7. Architecture](#7-architecture)
+- [8. Project structure](#8-project-structure)
+- [9. Getting started](#9-getting-started)
+- [10. Environment variables](#10-environment-variables)
+- [11. Database and authentication](#11-database-and-authentication)
+- [12. Testing and quality assurance](#12-testing-and-quality-assurance)
+- [13. Security and privacy](#13-security-and-privacy)
+- [14. Current limitations](#14-current-limitations)
+- [15. Future improvements](#15-future-improvements)
+- [16. Contributing](#16-contributing)
+- [17. License](#17-license)
 
-## Why EventoAI?
+---
 
-Planning an event involves many interconnected decisions. A change in guest count can affect the budget, venue requirements, catering, schedule, and vendor needs. Managing those relationships manually can become time-consuming and confusing.
+## 1. Project overview
 
-EventoAI is designed to bring those decisions together.
+EventoAI is designed to make event planning easier to understand, organize, and adapt.
 
-Instead of treating an event plan as a static document, it helps users build a structured plan, examine the numbers, organize preparation tasks, explore options, and reason about proposed changes.
+Instead of treating an event plan as a static AI-generated response, the application provides an integrated planning workflow.
 
-The goal is simple: **make event planning easier to understand, easier to adapt, and easier to act on.**
+Users can describe their event, define their requirements, review a structured plan, understand budget allocations, explore recommendations, and examine the potential impact of changes.
 
-## What it can do
+The application combines AI-assisted generation with deterministic calculations, application-side validation, and structured planning utilities.
 
-### 1. Turn event ideas into structured plans
+**The central objective is to turn event planning from a collection of disconnected decisions into one organized and adaptable process.**
 
-Describe an event and provide details such as its type, date, location, expected guest count, budget, themes, style preferences, and priorities.
+## 2. The problem
 
-EventoAI uses the supplied information to help construct a personalized event brief and a structured event plan.
+Planning an event involves many interconnected decisions.
 
-### 2. Make budgets easier to understand
+For example, changing the expected guest count can affect:
 
-The budget engine calculates projected spending and supports contingency planning and budget reconciliation.
+- Venue requirements
+- Catering quantities
+- Budget allocation
+- Vendor requirements
+- Preparation timelines
+- Guest experience
 
-Budget information is intended to help users understand:
+Managing these relationships manually can be time-consuming and confusing.
 
-- Projected costs and spending limits
+Generic AI responses may provide useful suggestions, but they do not necessarily offer reliable budget calculations, structured timelines, persistent event records, or clear explanations of how planning changes affect other decisions.
+
+EventoAI addresses these challenges through an integrated event-planning workspace.
+
+## 3. Features
+
+### 3.1 AI-assisted event planning
+
+Users can describe their event and provide important details, including:
+
+- Event type and occasion
+- Date and location
+- Expected guest count
+- Spending limit and currency
+- Theme and atmosphere
+- Planning priorities
+
+The application uses event-brief inference and AI-assisted generation to turn these requirements into a structured planning brief and event plan.
+
+### 3.2 Conversational planning workflow
+
+The planner guides users through eight stages:
+
+1. **Idea:** Describe the event.
+2. **Occasion:** Select the event type.
+3. **Date:** Define the event date.
+4. **Guests:** Specify the expected guest count.
+5. **Location:** Provide the city, country, and venue setting.
+6. **Budget:** Select currency, spending limit, and contingency reserve.
+7. **Style:** Choose themes, atmosphere, and priorities.
+8. **Review:** Examine the completed planning brief.
+
+The workflow supports validation, navigation, editing, and persistence of the planning draft.
+
+### 3.3 Budget intelligence
+
+EventoAI includes application-side budget calculations and planning utilities.
+
+Budget functionality supports:
+
+- Total spending limits
 - Category-level allocations
-- Remaining budget and budget utilization
+- Budget utilization
+- Remaining budget calculations
 - Contingency reserves
-- Differences between estimated amounts and verified quotations
+- Budget reconciliation
+- Estimated versus verified cost distinctions
 
-Currency formatting supports the currencies offered by the application, including INR, USD, GBP, and EUR.
+Supported currency options include INR, USD, GBP, and EUR.
 
-### 3. Organize preparation with timelines and checklists
+Important numerical calculations are handled by application logic where appropriate rather than relying entirely on AI-generated arithmetic.
 
-EventoAI includes timeline-generation and validation utilities designed to help users organize preparation tasks, understand deadlines, and plan the steps leading up to an event.
+### 3.4 Timelines and preparation tasks
 
-The aim is to make the next action clearer rather than leave users with a long, unstructured list of tasks.
+The timeline engine helps organize preparation tasks and event deadlines.
 
-### 4. Explore event concepts and vendor options
+It provides structured task information to make planning responsibilities easier to understand and manage.
 
-The application includes event-concept selection, recommendation ranking, planning guidance, and illustrative vendor-pricing scenarios.
+### 3.5 Event concepts and recommendations
 
-Recommendations are intended to help users compare ideas and understand how different choices may fit their preferences and budget.
+EventoAI includes event-concept generation, recommendation ranking, planning guidance, and vendor-pricing scenarios.
 
-### 5. Understand the impact of changes
+These features help users explore different event directions and compare planning options.
 
-The **Plan Impact Simulator** is one of EventoAI's key differentiators.
+### 3.6 Plan Impact Simulator
 
-Users can explore proposed changes, such as increasing the guest count, changing the spending limit, adjusting the event date, or changing the location.
+The Plan Impact Simulator is one of the application's key differentiators.
 
-The impact-assessment logic evaluates supported changes and helps explain their implications for the event plan.
+It evaluates supported modifications to an existing plan and helps users understand their potential consequences.
 
-This makes planning more adaptable: users can consider trade-offs before committing to a different direction.
+Depending on the proposed change, users can explore implications involving:
 
-### 6. Save and manage personal event plans
+- Guest count
+- Spending limits
+- Event date
+- Location
+- Budget allocation
+- Planning requirements
 
-EventoAI uses Supabase authentication and account-owned cloud storage for saved events.
+The intention is to help users understand trade-offs before accepting changes.
 
-The persistence layer supports versioned event records, concurrent-update safeguards, soft deletion, and explicit importing of eligible browser-stored events.
+### 3.7 Saved events and cloud persistence
 
-The intended result is a personal event-planning workspace in which saved plans can be revisited and updated without silently overwriting existing cloud data.
+EventoAI uses Supabase authentication and account-owned cloud storage.
 
-## How it works
+The persistence layer supports:
 
-1. **Describe:** Enter your event idea, preferences, guest count, budget, date, and other relevant details.
-2. **Generate:** Use the AI-assisted planning workflow to build a structured plan from the event brief.
-3. **Review:** Examine the proposed plan, projected costs, schedule, and recommendations.
-4. **Refine:** Explore supported changes and assess their possible impact on the plan.
-5. **Save:** Preserve the event in your authenticated workspace and return to it later.
+- User-owned event records
+- Versioned event updates
+- Concurrent-update safeguards
+- Soft deletion
+- Explicit importing of eligible browser-stored events
 
-The workflow combines AI assistance with application-side validation and deterministic calculations where appropriate.
+This allows users to revisit saved plans while reducing the risk of accidental overwrites or unintended restoration of deleted records.
 
-## What makes it different?
+---
 
-EventoAI is built around more than generating an event-planning response.
+## 4. How EventoAI works
 
-**AI-assisted planning** helps interpret a user's requirements and organize useful recommendations.
+The core workflow follows five stages.
 
-**Deterministic calculations** handle important budget arithmetic and related checks in application code rather than relying entirely on generated numerical answers.
+**1. Describe**
 
-**Change-impact analysis** makes the consequences of supported planning changes part of the workflow.
+Users provide an event idea and relevant preferences.
 
-**Account-owned persistence** provides authenticated event storage, ownership checks, concurrency protection, and safeguards against accidentally restoring soft-deleted events.
+**2. Generate**
 
-**Transparent estimates** distinguish illustrative pricing and estimated allocations from verified vendor quotations.
+The application interprets the brief and creates an AI-assisted event plan.
 
-Together, these elements are intended to make the product useful for the decisions that surround an event, not just the initial generation of a plan.
+**3. Review**
 
-## Technology stack
+Users examine the proposed event structure, budget, timeline, and recommendations.
+
+**4. Refine**
+
+Users explore supported planning changes and evaluate their potential impact.
+
+**5. Save**
+
+Users preserve their event in their authenticated workspace and return to it later.
+
+The workflow combines AI capabilities with deterministic calculations, schema validation, and application-side business logic.
+
+---
+
+## 5. What's improved in V2
+
+V2 focuses on improving maintainability, accessibility, security, and automated verification while preserving existing event-planning functionality.
+
+### 5.1 Planner architecture and maintainability
+
+The conversational planner has been refactored to separate the generated-plan presentation from the main conversational workflow.
+
+The generated-plan display was extracted into a dedicated component:
+
+`src/components/planner/plan-result-panel.tsx`
+
+The main conversational planner was reduced from approximately 2,609 lines to 1,966 lines during this refactoring.
+
+The extracted component retains explicit callbacks for saving, approving, revising, and restarting a plan.
+
+Other planning responsibilities have also been separated into dedicated components, including:
+
+- Conversation budget step
+- Conversation review panel
+- Plan refinement panel
+
+This improves separation of responsibilities and makes the planner easier to maintain and extend.
+
+### 5.2 Accessibility improvements
+
+Accessibility improvements include:
+
+- Better text contrast in the public landing page
+- Better text contrast throughout the authenticated planner
+- Accessible labels for review actions
+- Semantic groups for budget selections
+- `aria-pressed` states for budget and contingency choices
+- Visible keyboard focus
+- Reduced-motion support
+- Automated axe accessibility checks
+
+The authenticated planner has been tested across all eight planning stages.
+
+These automated checks are intended to improve WCAG A/AA accessibility coverage; they do not constitute a formal accessibility certification.
+
+### 5.3 Backend and API safeguards
+
+The planning API includes security and reliability measures such as:
+
+- Authentication verification
+- Request-origin validation
+- Bounded request-body handling
+- Input schema validation
+- Rate limiting
+- Safe public error responses
+- Server-side AI-provider handling
+
+API behavior is covered by dedicated automated tests.
+
+### 5.4 Validation and data correctness
+
+Saved-event validation includes explicit calendar-date checking, including month lengths and leap-year handling.
+
+Planning input validation and event persistence checks are covered by automated tests.
+
+### 5.5 Expanded automated coverage
+
+V2 adds public-page and authenticated planner accessibility coverage, as well as additional API and security tests.
+
+The recorded local verification for the V2 candidate is documented in the testing section below.
+
+---
+
+## 6. Technology stack
 
 | Technology | Purpose |
 |---|---|
-| Next.js App Router | Application framework, routing, and server-side endpoints |
-| React | Interactive user interface |
-| TypeScript | Application types and static checking |
+| Next.js 16 | Application framework, routing, and server endpoints |
+| React 19 | Interactive user interface |
+| TypeScript | Static typing and maintainability |
 | Google Gemini API | AI-assisted event-plan generation |
-| Supabase Auth | User authentication |
-| Supabase PostgreSQL | Cloud storage for account-owned events |
-| PostgreSQL row-level security | Database-level ownership protections |
-| Upstash Redis and rate limiting | Production API request-rate controls |
-| Vitest | Unit and utility testing |
-| Playwright | Browser-level end-to-end smoke tests |
+| Supabase Auth | Authentication |
+| Supabase PostgreSQL | Cloud event persistence |
+| PostgreSQL Row-Level Security | Database ownership protection |
+| Upstash Redis | Rate limiting infrastructure |
+| Vitest | Unit testing |
+| Playwright | End-to-end browser testing |
+| axe-core | Automated accessibility testing |
+| ESLint | Code quality and static analysis |
 | GitHub Actions | Automated repository checks |
-| Vercel | Intended hosting and deployment platform |
+| Vercel | Hosting and deployment platform |
 
-## Project structure
+---
 
-The project is organized around the application routes, reusable components, and domain-specific planning utilities.
+## 7. Architecture
+
+EventoAI separates the user interface, domain logic, validation, AI integration, and persistence responsibilities.
+
+The main architectural areas include:
+
+**Presentation layer**
+
+Next.js routes and reusable React components provide the public pages, authenticated planner, event workspace, and user interface.
+
+**Planning layer**
+
+Conversational planning, event-brief inference, plan refinement, and planning intelligence organize user requirements and generated plans.
+
+**Domain logic**
+
+Dedicated utilities handle budget calculations, recommendations, event concepts, timeline generation, and plan-impact assessment.
+
+**AI integration**
+
+Server-side AI utilities handle event-plan generation and provider interaction.
+
+**Security and validation**
+
+Request guards, authentication checks, validation schemas, and rate-limiting utilities protect important application operations.
+
+**Persistence**
+
+Supabase authentication and database operations support account-owned event records.
+
+---
+
+## 8. Project structure
 
 ```text
 eventoai/
@@ -150,8 +325,6 @@ eventoai/
 │   └── workflows/
 │       └── ci.yml
 ├── docs/
-│   ├── PROJECT_STRUCTURE.md
-│   └── REVISED_ROADMAP.md
 ├── src/
 │   ├── app/
 │   │   ├── api/
@@ -165,6 +338,11 @@ eventoai/
 │   │   ├── auth/
 │   │   ├── events/
 │   │   ├── planner/
+│   │   │   ├── conversation-budget-step.tsx
+│   │   │   ├── conversation-review-panel.tsx
+│   │   │   ├── conversational-planner.tsx
+│   │   │   ├── plan-result-panel.tsx
+│   │   │   └── plan-refinement-panel.tsx
 │   │   └── ui/
 │   ├── lib/
 │   │   ├── ai/
@@ -183,61 +361,65 @@ eventoai/
 │   └── migrations/
 ├── tests/
 │   ├── e2e/
+│   │   ├── accessibility.spec.ts
+│   │   ├── planner-accessibility.spec.ts
+│   │   └── smoke.spec.ts
 │   ├── integration/
 │   └── unit/
-├── .gitignore
 ├── package.json
 ├── playwright.config.ts
 ├── vitest.config.ts
 └── README.md
 ```
 
-This is a high-level map of the project; some directories contain additional files and utilities.
+This is a high-level project map. Additional modules and files exist within these directories.
 
-## Getting started
+---
+
+## 9. Getting started
 
 ### Prerequisites
 
-Install the following before running the application:
-
-- [Node.js](https://nodejs.org/) — Node.js 24 is the version used for the current local verification.
-- npm, included with Node.js
-- A Supabase project for authentication and cloud event storage
-- A Google Gemini API key for AI-assisted plan generation
+- Node.js 24 (used for the current local verification)
+- npm
+- A Supabase project
+- A Google Gemini API key
 - An Upstash Redis database for the configured production rate-limiting path
 
-### 1. Clone the repository
+### 9.1 Clone the repository
 
 ```bash
 git clone https://github.com/Gineeth4/EventoAI.git
 cd EventoAI
 ```
 
-### 2. Install dependencies
+### 9.2 Install dependencies
 
 ```bash
 npm ci
 ```
 
-### 3. Configure environment variables
+### 9.3 Configure environment variables
 
-Create a file named `.env.local` in the project root and add the required environment variables.
+Create `.env.local` in the project root.
 
-See [Environment variables](#environment-variables) below.
+Configure the required service credentials as described in the next section.
 
-### 4. Start the development server
+### 9.4 Start the development server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open:
 
-The local development server reads the configured environment variables from `.env.local`.
+http://localhost:3000
 
-## Environment variables
+---
 
-Configure the following variables in your local `.env.local` file and in your hosting provider's environment settings.
+## 10. Environment variables
+
+Configure the required variables in `.env.local` and in your hosting environment.
 
 | Variable | Purpose |
 |---|---|
@@ -247,120 +429,180 @@ Configure the following variables in your local `.env.local` file and in your ho
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST authentication |
 
-Use the actual values provided by the relevant services. The names above document the application's expected configuration; verify that all required variables are populated for the environment you are running.
+The authenticated planner end-to-end test also accepts these optional test-session variables:
 
-Never commit real API keys, private tokens, or production credentials. The `NEXT_PUBLIC_` prefix is intended only for values that may be exposed to browser code, such as the Supabase URL and publishable key.
+| Variable | Purpose |
+|---|---|
+| `E2E_TEST_EMAIL` | Dedicated Supabase test account |
+| `E2E_TEST_PASSWORD` | Password for the dedicated test account |
 
-The Gemini key and Upstash token must remain server-side secrets.
+Only use a dedicated test account for automated authentication tests.
 
-## Database and authentication
+Never commit API keys, private tokens, passwords, or production credentials.
 
-EventoAI's cloud persistence layer uses a PostgreSQL `events` table with user ownership and row-level security.
+The `NEXT_PUBLIC_` prefix is intended only for values that may be exposed to browser code. Gemini and Upstash credentials must remain server-side secrets.
 
-The database changes are documented under `supabase/migrations/`, including the initial table definition, soft-delete support, and the restriction on physical deletion of event records.
+---
 
-When setting up a new database:
+## 11. Database and authentication
 
-1. Review the existing schema and migration history.
-2. Ensure there is only one canonical initial table-creation migration.
-3. Apply the schema changes in the correct order.
-4. Verify the resulting privileges, row-level security policies, and authentication configuration before allowing real users to access the application.
+EventoAI uses Supabase authentication and PostgreSQL for cloud event persistence.
 
-Do not rerun the initial table-creation SQL against a database that already contains the table. For an existing Supabase project, reconcile the migration history with the actual database before using a migration tool to apply changes.
+The database layer uses account ownership and row-level security to restrict access to event records.
 
-Authentication redirects must also be configured for the domains used by the application. See the [Supabase redirect URL documentation](https://supabase.com/docs/guides/auth/redirect-urls).
+The persistence implementation includes version-aware updates, concurrency safeguards, and soft deletion.
 
-## Testing and quality checks
+For a new database:
 
-The project uses automated tests to check important planning logic, validation, persistence behavior, request guards, and browser-level behavior.
+1. Review the migration history.
+2. Apply migrations in the appropriate order.
+3. Verify table privileges and row-level security policies.
+4. Configure authentication providers and redirect URLs.
+5. Test account ownership using separate authenticated accounts.
 
-Run the checks locally with:
+Do not rerun initial table-creation migrations against an existing database.
+
+For an existing Supabase project, reconcile its migration history with the actual database schema before applying further changes.
+
+Refer to the [Supabase authentication redirect documentation](https://supabase.com/docs/guides/auth/redirect-urls) when configuring application domains.
+
+---
+
+## 12. Testing and quality assurance
+
+EventoAI uses automated tests for important planning logic, API behavior, validation, persistence, security, and browser interactions.
+
+### Run the project checks
 
 ```bash
+# ESLint
+npm run lint
+
 # Unit tests
 npm test
-
-# Lint
-npm run lint
 
 # Production build
 npm run build
 
-# Browser smoke tests
+# End-to-end tests
 npm run test:e2e
 ```
 
-The latest recorded local verification completed with:
+### V2 local verification
 
-- **152 unit tests passing** across 22 test files
-- ESLint passing
-- The Next.js production build passing
-- **5 Playwright end-to-end smoke tests passing**
+**Recorded verification: October 31, 2026**
 
-These are local verification results, not a claim that the remote GitHub Actions workflow or a production deployment has already passed. Check the [GitHub Actions page](https://github.com/Gineeth4/EventoAI/actions) for remote workflow results after the workflow is published and run.
+| Validation | Result |
+|---|---:|
+| ESLint | Passed |
+| Production build | Passed |
+| TypeScript compilation | Passed |
+| Unit test files | 23 passed |
+| Unit tests | 182 passed |
+| End-to-end tests | 10 passed |
+| Authenticated planner journey | Passed |
+| Planner accessibility stages | 8 passed |
+| Public landing-page accessibility | Passed |
+| Login-page accessibility | Passed |
+| Production dependency audit | 0 vulnerabilities |
 
-## Security and privacy
+The authenticated planner browser test requires `E2E_TEST_EMAIL` and `E2E_TEST_PASSWORD`. Without these dedicated test credentials, that test is intentionally skipped.
 
-Security is an important part of the application architecture.
+The accessibility tests use axe-core and cover the landing page, login page, keyboard focus, and the eight stages of the authenticated planning workflow.
+
+These results represent local verification of the V2 candidate. They do not imply that a remote CI workflow or a new production deployment has been completed.
+
+---
+
+## 13. Security and privacy
+
+Security is an important part of EventoAI's architecture.
 
 The implementation includes:
 
-- Server-side authentication checks for the AI planning endpoint
-- Request-origin validation and bounded request-body handling
-- Rate limiting for the planning API
-- Server-side handling of AI-provider errors
-- Schema validation for planning inputs and generated outputs
-- Security response headers and a Content Security Policy in report-only mode
-- Supabase row-level security for account-owned event records
-- User-scoped cloud operations and concurrency checks
-- Soft deletion to prevent stale copies from silently recreating deleted records
+- Server-side authentication verification
+- Request-origin validation
+- Bounded request-body handling
+- API rate limiting
+- Server-side AI-provider error handling
+- Schema validation for planning inputs
+- Validation of generated plan data
+- Security response headers
+- Content Security Policy in report-only mode
+- Supabase row-level security
+- User-scoped cloud operations
+- Version-aware persistence and concurrency checks
+- Soft deletion safeguards
 
-Report-only Content Security Policy does not block violations; it provides a compatibility-monitoring stage before any decision to enforce a policy.
+**Production dependency security:** The V2 production dependency audit returned zero vulnerabilities during local verification.
 
-Security tests and mocked persistence tests are useful safeguards, but they do not replace testing with real authenticated accounts, production credentials, and a deployed environment.
+The full development dependency audit still reports moderate advisories in the `minimatch` dependency chain used by development tooling. A forced dependency downgrade was deliberately avoided to protect the working ESLint and Next.js toolchain.
 
-Before deployment, verify the live authentication flows, account isolation, AI request behavior, and rate-limiting configuration.
+A report-only Content Security Policy monitors potential violations; it does not block them.
 
-## Current limitations
+Security tests and mocked persistence tests do not replace verification against a deployed environment and real authenticated accounts.
 
-EventoAI is an evolving project, and several boundaries are important to understand:
+Before deployment, verify authentication, account isolation, AI request handling, and rate-limiting configuration.
 
-- Vendor pricing is currently simulated or illustrative. It must not be treated as a verified quotation from a real provider.
-- Vendor availability and final costs must be confirmed directly before a commitment is made.
-- AI-generated content can be incomplete or inaccurate and should be reviewed.
-- Access to AI plan generation depends on the configured provider, credentials, quotas, and service availability.
-- Unit tests do not establish that every live third-party integration will work in production.
-- Automated smoke tests cover only a subset of all possible user journeys.
+---
 
-The application is intended to support planning decisions, not replace confirmation from venues, vendors, or event professionals.
+## 14. Current limitations
 
-## Future direction
+EventoAI is an evolving project.
 
-The development direction for EventoAI includes:
+The following limitations are important:
 
-- More complete end-to-end verification of the authenticated planning workflow
-- Continued improvements to accessibility, responsive design, and error recovery
-- Stronger integration testing for account isolation and persistence
-- More extensive validation of timeline dependencies and plan-change scenarios
-- Improved operational monitoring and deployment verification
-- Potential future integration with trustworthy live vendor data sources
+- Vendor pricing may be simulated or illustrative and must not be treated as a verified quotation.
+- Vendor availability and actual costs must be confirmed directly.
+- AI-generated plans may be incomplete or inaccurate and should be reviewed.
+- AI generation depends on provider configuration, credentials, quotas, and service availability.
+- Automated tests do not establish that every live third-party integration works in production.
+- Automated accessibility checks do not guarantee full WCAG conformance.
+- The current development dependency audit contains documented moderate advisories.
 
-Future capabilities will be treated as planned work until they are implemented and verified.
+EventoAI is intended to support planning decisions, not replace confirmation from venues, vendors, or event professionals.
 
-## Contributing
+---
+
+## 15. Future improvements
+
+Potential development directions include:
+
+- Further separation of planner workflow and domain responsibilities
+- Additional authenticated integration testing
+- Expanded accessibility and keyboard-navigation coverage
+- More extensive timeline-dependency validation
+- Stronger operational monitoring
+- More complete live vendor-data integration
+- Continued dependency-security improvements
+- Improved performance measurement and optimization
+
+Future capabilities will be treated as planned work until implemented and verified.
+
+---
+
+## 16. Contributing
 
 Contributions and issue reports are welcome.
 
-For a proposed change:
+For proposed changes:
 
 1. Describe the problem or improvement.
-2. Explain its expected benefit to users.
-3. Include relevant tests for changes to application logic.
-4. Run the unit tests, lint, production build, and applicable browser tests.
-5. Document any new environment variables or database changes.
+2. Explain the expected benefit to users.
+3. Add relevant tests for changes to application logic.
+4. Run lint, unit tests, production build, and applicable browser tests.
+5. Document new environment variables or database changes.
 
-Avoid including credentials, real user data, or sensitive configuration in commits, issue reports, or test fixtures.
+Do not include credentials, private user data, or sensitive configuration in commits or test fixtures.
 
-## License
+---
 
-No license file has been declared for this repository yet. Until a license is added, do not assume that the source code is available for unrestricted reuse.
+## 17. License
+
+No license file has been declared for this repository yet.
+
+Until a license is added, do not assume that the source code is available for unrestricted reuse.
+
+---
+
+**EventoAI V2 — Intelligent planning. Clearer decisions. More actionable events.**

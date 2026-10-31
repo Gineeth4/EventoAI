@@ -101,7 +101,6 @@ function Brand() {
     <Link
       className="home-brand"
       href="/"
-      aria-label="EventoAI home"
     >
       <span className="home-brand-mark" aria-hidden="true">
         <CalendarDays size={21} strokeWidth={1.9} />
@@ -219,7 +218,7 @@ function StudioPreview() {
               </div>
             </div>
 
-            <span className="home-preview-dots" aria-label="Three concept directions">
+            <span className="home-preview-dots" aria-hidden="true">
               <i />
               <i />
               <i />

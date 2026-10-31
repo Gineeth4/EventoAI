@@ -1986,3 +1986,22 @@
     transform: none;
   }
 }
+
+/* Accessibility contrast corrections */
+.home-page {
+  --studio-muted: #626f65;
+}
+
+.home-page .home-concept-number,
+.home-page .home-principle-number,
+.home-page .home-workflow-number {
+  color: #5f6d63;
+}
+
+.home-page .home-decision-status {
+  color: #705a2d;
+}
+
+.home-page .home-footer-bottom {
+  color: #5f6d63;
+}

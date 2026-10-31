@@ -112,9 +112,9 @@ export default function ConversationBudgetStep({
 
                       {draft.currency && (
                         <div className="conversation-choice-block">
-                          <span>Or choose a starting amount</span>
+                          <span id="budget-presets-label">Or choose a starting amount</span>
 
-                          <div className="conversation-quick-choices">
+                          <div className="conversation-quick-choices" role="group" aria-labelledby="budget-presets-label">
                             {(
                               BUDGET_OPTIONS[draft.currency] ?? []
                             ).map((option) => (
@@ -127,6 +127,7 @@ export default function ConversationBudgetStep({
                                     : ""
                                 }
                                 type="button"
+                                aria-pressed={draft.totalAmount === String(option.value)}
                                 onClick={() =>
                                   setDraft((current) => ({
                                     ...current,
@@ -142,12 +143,12 @@ export default function ConversationBudgetStep({
                       )}
 
                       <div className="conversation-choice-block">
-                        <span>
+                        <span id="contingency-options-label">
                           Contingency reserve{" "}
                           <small>Suggested: 10%</small>
                         </span>
 
-                        <div className="conversation-quick-choices">
+                        <div className="conversation-quick-choices" role="group" aria-labelledby="contingency-options-label">
                           {[5, 10, 15].map((percent) => (
                             <button
                               key={percent}
@@ -158,6 +159,7 @@ export default function ConversationBudgetStep({
                                   : ""
                               }
                               type="button"
+                              aria-pressed={draft.contingencyPercent === String(percent)}
                               onClick={() =>
                                 setDraft((current) => ({
                                   ...current,

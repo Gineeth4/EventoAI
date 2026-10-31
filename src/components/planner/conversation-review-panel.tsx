@@ -83,6 +83,7 @@ export default function ConversationReviewPanel({
           </strong>
           <button
             type="button"
+            aria-label="Change occasion"
             onClick={() => goToStep("occasion")}
           >
             Change
@@ -94,6 +95,7 @@ export default function ConversationReviewPanel({
           <strong>{formatDate(draft.eventDate)}</strong>
           <button
             type="button"
+            aria-label="Change date"
             onClick={() => goToStep("date")}
           >
             Change
@@ -105,6 +107,7 @@ export default function ConversationReviewPanel({
           <strong>{draft.guestCount}</strong>
           <button
             type="button"
+            aria-label="Change guest count"
             onClick={() => goToStep("guests")}
           >
             Change
@@ -118,6 +121,7 @@ export default function ConversationReviewPanel({
           </strong>
           <button
             type="button"
+            aria-label="Change location"
             onClick={() => goToStep("location")}
           >
             Change
@@ -134,6 +138,7 @@ export default function ConversationReviewPanel({
           </strong>
           <button
             type="button"
+            aria-label="Change spending limit"
             onClick={() => goToStep("budget")}
           >
             Change
@@ -150,6 +155,7 @@ export default function ConversationReviewPanel({
           </strong>
           <button
             type="button"
+            aria-label="Change contingency reserve"
             onClick={() => goToStep("budget")}
           >
             Change

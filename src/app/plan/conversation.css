@@ -3078,3 +3078,25 @@
     padding: 15px;
   }
 }
+/* WCAG AA contrast corrections for planner interface */
+.conversation-workspace {
+  --studio-muted: #59665c;
+}
+
+.conversation-workspace .conversation-question-eyebrow,
+.conversation-workspace .conversation-input-footer,
+.conversation-workspace .conversation-examples > span {
+  color: #59665c;
+}
+
+/* Improve planner back-button contrast */
+.conversation-workspace .conversation-back-step {
+  color: #59665c;
+}
+
+/* WCAG AA contrast corrections for planning intelligence */
+.conversation-workspace .conversation-intelligence-metric > small,
+.conversation-workspace .conversation-intelligence-insight.is-info .conversation-intelligence-insight-title > span,
+.conversation-workspace .conversation-intelligence-disclaimer {
+  color: #59665c;
+}

@@ -247,3 +247,153 @@ describe("assessPlanChange", () => {
     ).toBe(true);
   });
 });
+describe("assessPlanChange edge cases", () => {
+  it("reduces eligible estimates when the guest count decreases", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    const assessment = assessPlanChange({
+      currentEvent,
+      currentPlan,
+      change: { kind: "guest_count", value: 10 },
+      guestUnitCosts: { catering: 100 },
+    });
+
+    expect(
+      assessment.proposedPlan.budget.items.find(
+        (item) => item.id === "catering",
+      )?.estimatedAmount,
+    ).toBe(3_000);
+
+    expect(assessment.projectedCostChange).toBe(-1_100);
+    expect(assessment.proposedEvent.guestCount).toBe(10);
+    expect(assessment.requiresReview).toBe(false);
+  });
+
+  it("never allows a recalculated estimate to become negative", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    const assessment = assessPlanChange({
+      currentEvent,
+      currentPlan,
+      change: { kind: "guest_count", value: 1 },
+      guestUnitCosts: { catering: 300 },
+    });
+
+    expect(
+      assessment.proposedPlan.budget.items.find(
+        (item) => item.id === "catering",
+      )?.estimatedAmount,
+    ).toBe(0);
+  });
+
+  it("does not recalculate costs when the guest count is unchanged", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    const assessment = assessPlanChange({
+      currentEvent,
+      currentPlan,
+      change: { kind: "guest_count", value: 20 },
+      guestUnitCosts: { catering: 100 },
+    });
+
+    expect(assessment.affectedBudgetItems).toHaveLength(0);
+    expect(assessment.projectedCostChange).toBe(0);
+    expect(assessment.requiresReview).toBe(false);
+    expect(
+      assessment.proposedPlan.budget.items.find(
+        (item) => item.id === "catering",
+      )?.estimatedAmount,
+    ).toBe(4_000);
+  });
+
+  it("rejects guest-count changes when the original guest count is unknown", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+    currentEvent.guestCount = undefined;
+
+    expect(() =>
+      assessPlanChange({
+        currentEvent,
+        currentPlan,
+        change: { kind: "guest_count", value: 30 },
+      }),
+    ).toThrow(/current guest count is unknown/i);
+  });
+
+  it("rejects unit costs referencing unknown budget item IDs", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    expect(() =>
+      assessPlanChange({
+        currentEvent,
+        currentPlan,
+        change: { kind: "guest_count", value: 30 },
+        guestUnitCosts: { unknown_item: 100 },
+      }),
+    ).toThrow(/unknown budget item/i);
+  });
+
+  it("rejects per-guest rates for fixed-cost categories", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    expect(() =>
+      assessPlanChange({
+        currentEvent,
+        currentPlan,
+        change: { kind: "guest_count", value: 30 },
+        guestUnitCosts: { venue: 100 },
+      }),
+    ).toThrow(/not configured as guest-sensitive/i);
+  });
+
+  it("rejects assessments when event and plan currencies differ", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+    currentEvent.budget.currency = "USD";
+
+    expect(() =>
+      assessPlanChange({
+        currentEvent,
+        currentPlan,
+        change: { kind: "budget", value: 12_000 },
+      }),
+    ).toThrow(/different currencies/i);
+  });
+
+  it("does not shift tasks when the event date is unchanged", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    const assessment = assessPlanChange({
+      currentEvent,
+      currentPlan,
+      change: { kind: "event_date", value: "2027-07-20" },
+    });
+
+    expect(assessment.tasksRescheduled).toBe(0);
+    expect(assessment.proposedPlan.tasks[0].dueDate).toBe("2027-07-18");
+    expect(assessment.requiresReview).toBe(false);
+  });
+
+  it("shifts task dates correctly across a leap-year boundary", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    const assessment = assessPlanChange({
+      currentEvent,
+      currentPlan,
+      change: { kind: "event_date", value: "2028-03-01" },
+    });
+
+    expect(assessment.proposedPlan.tasks[0].dueDate).toBe("2028-02-28");
+    expect(assessment.tasksRescheduled).toBe(1);
+  });
+
+  it("rejects impossible calendar dates", () => {
+    const { currentEvent, currentPlan } = createTestScenario();
+
+    expect(() =>
+      assessPlanChange({
+        currentEvent,
+        currentPlan,
+        change: { kind: "event_date", value: "2027-02-29" },
+      }),
+    ).toThrow();
+  });
+});

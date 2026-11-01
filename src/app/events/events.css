@@ -584,3 +584,25 @@
     text-align: right;
   }
 }
+/* WCAG AA contrast improvements for secondary event text. */
+.events-page .events-brand small,
+.events-page .events-intro > p,
+.events-page .events-summary,
+.events-page .events-metadata > span,
+.events-page .events-disclaimer,
+.events-page .events-footer p,
+.events-page .events-empty p,
+.events-page .events-detail-section ul {
+  color: #4d5b52;
+}
+
+/* WCAG AA contrast improvements for expanded saved-plan details. */
+.events-page .events-detail-section > p,
+.events-page .events-detail-metrics span,
+.events-page .events-budget-row > div span,
+.events-page .events-task p,
+.events-page .events-task-meta,
+.events-page .events-task-meta span,
+.events-page .events-recommendation p {
+  color: #4d5b52;
+}

@@ -525,6 +525,7 @@ export default function EventsPage() {
                         className="events-toggle-button"
                         type="button"
                         aria-expanded={expanded}
+                        aria-controls={`saved-plan-details-${encodeURIComponent(record.id)}`}
                         onClick={() =>
                           setExpandedId(expanded ? null : record.id)
                         }
@@ -546,7 +547,9 @@ export default function EventsPage() {
 
                   <EventActions record={record} />
 
-                  {expanded && <EventDetails record={record} />}
+                  <div id={`saved-plan-details-${encodeURIComponent(record.id)}`}>
+                    {expanded && <EventDetails record={record} />}
+                  </div>
                 </article>
               );
             })}

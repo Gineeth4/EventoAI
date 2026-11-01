@@ -66,9 +66,15 @@ function toEventInput(input: SavedEventInput): EventInput {
     preferences: {
       preferredThemes: input.preferences.preferredThemes,
       preferredStyles: input.preferences.preferredStyles,
+      culturalNotes: input.preferences.culturalNotes,
+      dietaryRequirements: input.preferences.dietaryRequirements,
+      accessibilityNeeds: input.preferences.accessibilityNeeds,
+      mustHave: input.preferences.mustHave,
+      mustAvoid: input.preferences.mustAvoid,
       notes: input.preferences.notes,
     },
     planningPriorities: input.planningPriorities,
+    specialRequirements: input.specialRequirements,
   }) as EventInput;
 }
 

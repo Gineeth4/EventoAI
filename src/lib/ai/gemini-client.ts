@@ -16,7 +16,7 @@ let cachedClient: GoogleGenAI | undefined;
 const GENERATE_CONTENT_BASE_URL =
   "https://generativelanguage.googleapis.com/v1beta/models";
 
-const MAX_REQUEST_TIMEOUT_MS = 7_000;
+const MAX_REQUEST_TIMEOUT_MS = 12_000;
 
 export function getGeminiClient(): GoogleGenAI {
   const apiKey = process.env.GEMINI_API_KEY?.trim();

@@ -185,3 +185,101 @@ describe("validateTimeline", () => {
     }
   });
 });
+describe("generateTimeline edge cases", () => {
+  it("produces identical schedules with identical deterministic ID factories", () => {
+    const input = {
+      eventType: "wedding",
+      eventDate: "2027-12-15",
+    } as const;
+
+    const first = generateTimeline(input, {
+      idFactory: createIdFactory(),
+    });
+
+    const second = generateTimeline(input, {
+      idFactory: createIdFactory(),
+    });
+
+    expect(second).toEqual(first);
+  });
+
+  it("calculates deadlines correctly across leap day", () => {
+    const eventDate = "2028-04-29";
+
+    const tasks = generateTimeline(
+      {
+        eventType: "birthday",
+        eventDate,
+      },
+      { idFactory: createIdFactory() },
+    );
+
+    const requirementsTask = tasks.find(
+      (task) => task.title === "Define event requirements",
+    );
+
+    expect(requirementsTask?.dueDate).toBe("2028-02-29");
+    expect(validateTimeline(tasks, eventDate).success).toBe(true);
+  });
+
+  it("rejects blank IDs from an injected ID factory", () => {
+    expect(() =>
+      generateTimeline(
+        {
+          eventType: "birthday",
+          eventDate: "2027-12-15",
+        },
+        { idFactory: () => "   " },
+      ),
+    ).toThrow(/empty ID/i);
+  });
+
+  it("rejects impossible event calendar dates", () => {
+    expect(() =>
+      generateTimeline({
+        eventType: "birthday",
+        eventDate: "2027-02-29",
+      }),
+    ).toThrow();
+  });
+});
+
+describe("validateTimeline edge cases", () => {
+  it("returns a structured issue for an invalid event date", () => {
+    const result = validateTimeline([], "2027-02-29");
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      expect(result.issues[0].code).toBe("invalid_event_date");
+      expect(result.issues[0].path).toBe("eventDate");
+    }
+  });
+
+  it("allows a prerequisite and dependent task to share the same due date", () => {
+    const tasks = [
+      {
+        id: "prepare-event",
+        title: "Prepare event",
+        dueDate: "2027-12-10",
+        category: "logistics",
+        priority: "medium",
+        status: "todo",
+        dependsOn: ["confirm-details"],
+      },
+      {
+        id: "confirm-details",
+        title: "Confirm details",
+        dueDate: "2027-12-10",
+        category: "logistics",
+        priority: "medium",
+        status: "todo",
+        dependsOn: [],
+      },
+    ];
+
+    const result = validateTimeline(tasks, "2027-12-15");
+
+    expect(result.success).toBe(true);
+  });
+});

@@ -186,6 +186,7 @@ export default function EventActions({ record }: Props) {
         ...draft.budget,
       },
       preferences: {
+        ...draft.preferences,
         preferredThemes: splitList(themesText, ["simple"]),
         preferredStyles: splitList(stylesText, ["practical"]),
         notes: draft.preferences.notes.trim(),
@@ -360,6 +361,7 @@ export default function EventActions({ record }: Props) {
             className="event-version-history-toggle"
             type="button"
             aria-expanded={showVersionHistory}
+            aria-controls={`event-version-list-${encodeURIComponent(record.id)}`}
             onClick={() => setShowVersionHistory((current) => !current)}
           >
             <span className="event-version-history-title">
@@ -378,8 +380,9 @@ export default function EventActions({ record }: Props) {
             </span>
           </button>
 
-          {showVersionHistory && (
-            <div className="event-version-list">
+          <div id={`event-version-list-${encodeURIComponent(record.id)}`}>
+            {showVersionHistory && (
+              <div className="event-version-list">
               {[...record.versions]
                 .sort((a, b) => b.version - a.version)
                 .map((version) => {
@@ -476,8 +479,9 @@ export default function EventActions({ record }: Props) {
                     </article>
                   );
                 })}
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </section>
         </>
       ) : (

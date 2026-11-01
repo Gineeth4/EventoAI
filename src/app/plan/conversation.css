@@ -467,7 +467,8 @@
 }
 
 .conversation-field input,
-.conversation-field select {
+.conversation-field select,
+.conversation-field textarea {
   width: 100%;
   min-width: 0;
   min-height: 45px;
@@ -480,8 +481,52 @@
   font-size: 12px;
 }
 
-.conversation-field input::placeholder {
+.conversation-field input::placeholder,
+.conversation-field textarea::placeholder {
   color: #9aa398;
+}
+
+.conversation-field textarea {
+  min-height: 86px;
+  padding: 11px 12px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.conversation-requirements {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 18px;
+  border: 1px solid #e2e8df;
+  border-radius: 13px;
+  background: #fbfcfa;
+}
+
+.conversation-requirements-heading h3 {
+  margin: 0;
+  color: var(--studio-ink);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.conversation-requirements-heading p {
+  margin: 5px 0 0;
+  color: var(--studio-muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.conversation-requirements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+  gap: 14px;
+}
+
+.conversation-requirements .conversation-field > small {
+  color: var(--studio-muted);
+  font-size: 10px;
+  line-height: 1.55;
 }
 
 .conversation-field-grid {

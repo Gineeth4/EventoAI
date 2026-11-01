@@ -1,4 +1,5 @@
 "use client";
+import dynamic from "next/dynamic";
 import { formatCurrency as formatCurrencyShared } from "@/lib/format-currency";
 
 import Link from "next/link";
@@ -25,11 +26,11 @@ import {
 } from "lucide-react";
 
 import StudioChoiceCard from "@/components/ui/studio-choice-card";
-import ConversationReviewPanel from "@/components/planner/conversation-review-panel";
-import ConversationBudgetStep from "@/components/planner/conversation-budget-step";
-import PlanResultPanel from "@/components/planner/plan-result-panel";
 
-import EventConceptSelector from "@/components/planner/event-concept-selector";
+
+
+
+
 import {
   createEventConcepts,
   type EventConcept,
@@ -48,6 +49,56 @@ import {
 import { eventInputSchema } from "@/lib/validation/event-input";
 import type { SavedEventInput } from "@/types/saved-event";
 import type { ConversationDraft } from "@/types/conversation-draft";
+import {
+  createEmptyDraft,
+  normalizeStoredDraft,
+} from "@/lib/planning-intelligence/normalize-conversation-draft";
+import { buildSavedEventPayload } from "@/lib/planning-intelligence/build-saved-event-payload";
+import { parseRequirementLines } from "@/lib/planning-intelligence/requirement-text";
+
+const ConversationReviewPanel = dynamic(
+  () => import("@/components/planner/conversation-review-panel"),
+  {
+    loading: () => (
+      <div className="conversation-lazy-loading" role="status">
+        Loading review controls...
+      </div>
+    ),
+  },
+);
+
+const ConversationBudgetStep = dynamic(
+  () => import("@/components/planner/conversation-budget-step"),
+  {
+    loading: () => (
+      <div className="conversation-lazy-loading" role="status">
+        Loading budget controls...
+      </div>
+    ),
+  },
+);
+
+const PlanResultPanel = dynamic(
+  () => import("@/components/planner/plan-result-panel"),
+  {
+    loading: () => (
+      <div className="conversation-lazy-loading" role="status">
+        Preparing your event plan...
+      </div>
+    ),
+  },
+);
+
+const EventConceptSelector = dynamic(
+  () => import("@/components/planner/event-concept-selector"),
+  {
+    loading: () => (
+      <div className="conversation-lazy-loading" role="status">
+        Loading event concepts...
+      </div>
+    ),
+  },
+);
 
 type Step =
   | "idea"
@@ -224,28 +275,6 @@ const GUEST_OPTIONS = [
 
 
 
-function createEmptyDraft(): ConversationDraft {
-  return {
-    idea: "",
-    eventType: "",
-    title: "",
-    eventDate: "",
-    guestCount: "",
-    city: "",
-    country: "",
-    venueType: "",
-    currency: "",
-    totalAmount: "",
-    contingencyPercent: "10",
-    contingencyChosen: false,
-    themes: [],
-    styles: [],
-    notes: "",
-    planningPriorities: [],
-    assumptions: [],
-  };
-}
-
 function isStep(value: unknown): value is Step {
   return [
     "idea",
@@ -257,60 +286,6 @@ function isStep(value: unknown): value is Step {
     "style",
     "review",
   ].includes(String(value));
-}
-
-function normalizeStoredDraft(
-  value: unknown,
-): ConversationDraft | null {
-  if (typeof value !== "object" || value === null) {
-    return null;
-  }
-
-  const raw = value as Record<string, unknown>;
-
-  const stringValue = (key: string, fallback = "") =>
-    typeof raw[key] === "string"
-      ? (raw[key] as string)
-      : fallback;
-
-  const stringArray = (key: string): string[] =>
-    Array.isArray(raw[key])
-      ? raw[key]
-          .filter(
-            (item): item is string =>
-              typeof item === "string",
-          )
-          .slice(0, 20)
-      : [];
-
-  const venueType = raw.venueType;
-
-  return {
-    ...createEmptyDraft(),
-    idea: stringValue("idea").slice(0, 600),
-    eventType: stringValue("eventType"),
-    title: stringValue("title").slice(0, 160),
-    eventDate: stringValue("eventDate"),
-    guestCount: stringValue("guestCount"),
-    city: stringValue("city").slice(0, 100),
-    country: stringValue("country").slice(0, 100),
-    venueType:
-      venueType === "indoor" || venueType === "outdoor"
-        ? venueType
-        : "",
-    currency: stringValue("currency"),
-    totalAmount: stringValue("totalAmount"),
-    contingencyPercent: stringValue(
-      "contingencyPercent",
-      "10",
-    ),
-    contingencyChosen: raw.contingencyChosen === true,
-    themes: stringArray("themes"),
-    styles: stringArray("styles"),
-    notes: stringValue("notes").slice(0, 500),
-    planningPriorities: stringArray("planningPriorities"),
-    assumptions: stringArray("assumptions"),
-  };
 }
 
 function restoreConversationState(
@@ -525,64 +500,6 @@ function toggleItem(
     : [...items, value];
 }
 
-function buildPayload(
-  draft: ConversationDraft,
-): SavedEventInput {
-  const assumptions = [...draft.assumptions];
-
-  if (!draft.contingencyChosen) {
-    assumptions.push(
-      "A 10% contingency reserve is a starting assumption and can be changed.",
-    );
-  }
-
-  const priorities = draft.planningPriorities.length
-    ? draft.planningPriorities
-    : ["budget", "guest_experience"];
-
-  if (!draft.planningPriorities.length) {
-    assumptions.push(
-      "Budget control and guest experience are the initial planning priorities.",
-    );
-  }
-
-  const notes = [
-    draft.idea.trim(),
-    draft.notes.trim(),
-    assumptions.length
-      ? `Planning assumptions: ${assumptions.join("; ")}`
-      : "",
-  ]
-    .filter(Boolean)
-    .join("\n\n")
-    .slice(0, 600);
-
-  return {
-    eventType: draft.eventType,
-    title: draft.title.trim(),
-    eventDate: draft.eventDate,
-    guestCount: Number(draft.guestCount),
-    location: {
-      city: draft.city.trim(),
-      country: draft.country.trim(),
-      venueType: draft.venueType,
-    },
-    budget: {
-      currency: draft.currency,
-      totalAmount: Number(draft.totalAmount),
-      contingencyPercent: Number(
-        draft.contingencyPercent || "10",
-      ),
-    },
-    preferences: {
-      preferredThemes: draft.themes,
-      preferredStyles: draft.styles,
-      notes,
-    },
-    planningPriorities: [...new Set(priorities)],
-  };
-}
-
 function buildPlanningBrief(
   draft: ConversationDraft,
 ): EventBriefForAnalysis {
@@ -606,9 +523,15 @@ function buildPlanningBrief(
     preferences: {
       preferredThemes: draft.themes,
       preferredStyles: draft.styles,
+      dietaryRequirements: parseRequirementLines(draft.dietaryRequirementsText),
+      accessibilityNeeds: parseRequirementLines(draft.accessibilityNeedsText),
+      mustHave: parseRequirementLines(draft.mustHaveText),
+      mustAvoid: parseRequirementLines(draft.mustAvoidText),
+      culturalNotes: draft.culturalNotes.trim(),
       notes: draft.notes,
     },
     planningPriorities: draft.planningPriorities,
+    specialRequirements: draft.specialRequirements.trim(),
   };
 }
 function StepProgress({ step }: { step: Step }) {
@@ -901,7 +824,7 @@ function ConversationalPlannerFlow({
     setErrorMessage("");
     setSaveMessage("");
 
-    const payload = buildPayload(draft);
+    const payload = buildSavedEventPayload(draft);
     const validation = eventInputSchema.safeParse(payload);
 
     if (!validation.success) {

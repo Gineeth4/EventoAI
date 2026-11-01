@@ -244,6 +244,75 @@ function createLocalRecommendations(
   const location =
     event.location?.venueType ?? "chosen";
 
+  const dietaryRequirements =
+    event.preferences?.dietaryRequirements ?? [];
+
+  const accessibilityNeeds =
+    event.preferences?.accessibilityNeeds ?? [];
+
+  const mustHave =
+    event.preferences?.mustHave ?? [];
+
+  const mustAvoid =
+    event.preferences?.mustAvoid ?? [];
+
+  const culturalNotes =
+    event.preferences?.culturalNotes?.trim() ?? "";
+
+  const specialRequirements =
+    event.specialRequirements?.trim() ?? "";
+
+  const requirementNotes: string[] = [];
+
+  if (dietaryRequirements.length) {
+    requirementNotes.push(
+      `Dietary: ${dietaryRequirements.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (accessibilityNeeds.length) {
+    requirementNotes.push(
+      `Accessibility: ${accessibilityNeeds.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (mustHave.length) {
+    requirementNotes.push(
+      `Must-have: ${mustHave.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (mustAvoid.length) {
+    requirementNotes.push(
+      `Must-avoid: ${mustAvoid.slice(0, 3).join(", ")}`,
+    );
+  }
+
+  if (culturalNotes) {
+    requirementNotes.push(
+      `Cultural guidance: ${culturalNotes.slice(0, 180)}`,
+    );
+  }
+
+  if (specialRequirements) {
+    requirementNotes.push(
+      `Special requirements: ${specialRequirements.slice(0, 180)}`,
+    );
+  }
+
+  const requirementSummary = requirementNotes
+    .join(" | ")
+    .slice(0, 700);
+
+  const venueConstraints = [
+    ...(mustHave.length
+      ? [`Confirm these must-haves: ${mustHave.slice(0, 3).join(", ")}.`]
+      : []),
+    ...(mustAvoid.length
+      ? [`Avoid these excluded items: ${mustAvoid.slice(0, 3).join(", ")}.`]
+      : []),
+  ].join(" ");
+
   const candidates = [
     {
       title: "Coordinated theme styling",
@@ -256,36 +325,44 @@ function createLocalRecommendations(
     },
     {
       title: "Practical guest refreshments",
-      description:
-        "Choose a manageable menu and plan service around the guest count and event duration.",
-      whyItFits:
-        "Food planning has a direct effect on guest comfort and budget control.",
+      description: dietaryRequirements.length
+        ? `Choose a manageable menu around the guest count and event duration. Confirm these stated dietary needs, ingredients, preparation practices, and cross-contact controls directly with the caterer: ${dietaryRequirements.slice(0, 3).join(", ")}.`
+        : "Choose a manageable menu and plan service around the guest count and event duration.",
+      whyItFits: dietaryRequirements.length
+        ? "Keeps the stated dietary needs visible without assuming that a menu, ingredients, or allergen controls are already confirmed."
+        : "Food planning has a direct effect on guest comfort and budget control.",
       tags: ["food", "guest-experience", "planning"],
       categoryHints: ["food", "catering", "guest"],
     },
     {
       title: "An optional group activity",
-      description:
-        "Offer a low-cost group activity that guests can join without disrupting the main event.",
-      whyItFits:
-        "Creates opportunities for guest interaction without depending on expensive entertainment.",
+      description: accessibilityNeeds.length
+        ? `Offer an optional group activity with different ways to participate and a suitable quiet alternative. Confirm the activity and venue arrangements against these stated needs: ${accessibilityNeeds.slice(0, 3).join(", ")}.`
+        : "Offer a low-cost group activity that guests can join without disrupting the main event.",
+      whyItFits: accessibilityNeeds.length
+        ? "Encourages guest participation while keeping accessibility needs visible for direct verification."
+        : "Creates opportunities for guest interaction without depending on expensive entertainment.",
       tags: ["activity", "social", "family-friendly"],
       categoryHints: ["activity", "entertainment", "guest"],
     },
     {
       title: "Venue-specific backup plan",
-      description:
+      description: [
         location.toLowerCase().includes("outdoor")
           ? "Identify a sheltered alternative and plan for shade, rain, power, and safe guest movement."
           : "Prepare a simple backup for timing, equipment, and last-minute attendance changes.",
+        venueConstraints,
+      ]
+        .filter(Boolean)
+        .join(" "),
       whyItFits:
-        "Prevents common logistical problems from forcing expensive last-minute changes.",
+        "Prevents common logistical problems from forcing expensive last-minute changes and makes important constraints easier to verify.",
       tags: ["logistics", "contingency", "practical"],
       categoryHints: ["venue", "logistics", "planning"],
     },
   ];
 
-  return candidates.map((candidate) => ({
+  const recommendations = candidates.map((candidate) => ({
     id: globalThis.crypto.randomUUID(),
 
     title: candidate.title,
@@ -299,6 +376,24 @@ function createLocalRecommendations(
     whyItFits: candidate.whyItFits,
     tags: candidate.tags,
   }));
+
+  if (requirementSummary) {
+    recommendations.push({
+      id: globalThis.crypto.randomUUID(),
+      title: "Guest needs and event constraints",
+      category: chooseEnum(
+        allowedCategories,
+        ["accessibility", "logistics", "guest_experience"],
+      ) as EventIdeaRecommendation["category"],
+      description:
+        `Before booking, confirm these user-stated requirements directly with the relevant venue or suppliers: ${requirementSummary}. Do not treat them as confirmed until verified.`,
+      whyItFits:
+        "Keeps guest needs and non-negotiable constraints visible during planning without claiming that a venue or supplier can meet them.",
+      tags: ["requirements", "guest-experience", "verification"],
+    });
+  }
+
+  return recommendations;
 }
 
 function createLocalVendorSuggestions(): VendorSuggestion[] {

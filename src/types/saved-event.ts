@@ -21,10 +21,16 @@ export type SavedEventInput = {
   preferences: {
     preferredThemes: string[];
     preferredStyles: string[];
+    culturalNotes?: string;
+    dietaryRequirements?: string[];
+    accessibilityNeeds?: string[];
+    mustHave?: string[];
+    mustAvoid?: string[];
     notes: string;
   };
 
   planningPriorities: string[];
+  specialRequirements?: string;
 };
 
 export type SavedEventVersion = {

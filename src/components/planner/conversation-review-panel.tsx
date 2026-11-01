@@ -174,6 +174,137 @@ export default function ConversationReviewPanel({
         ))}
       </div>
 
+      <section
+        className="conversation-requirements"
+        aria-labelledby="conversation-requirements-title"
+      >
+        <div className="conversation-requirements-heading">
+          <h3 id="conversation-requirements-title">
+            Guest needs and event constraints
+          </h3>
+          <p>
+            Add important details the plan should account for. These fields
+            are optional; enter list items one per line.
+          </p>
+        </div>
+
+        <div className="conversation-requirements-grid">
+          <label className="conversation-field" htmlFor="conversation-dietary">
+            <span>Dietary requirements</span>
+            <textarea
+              id="conversation-dietary"
+              rows={3}
+              maxLength={4000}
+              aria-describedby="conversation-dietary-help"
+              value={draft.dietaryRequirementsText}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  dietaryRequirementsText: event.target.value,
+                }))
+              }
+              placeholder={"Vegetarian\nVegan\nNut-free"}
+            />
+            <small id="conversation-dietary-help">One requirement per line; up to 30 items.</small>
+          </label>
+
+          <label className="conversation-field" htmlFor="conversation-accessibility">
+            <span>Accessibility needs</span>
+            <textarea
+              id="conversation-accessibility"
+              rows={3}
+              maxLength={4000}
+              aria-describedby="conversation-accessibility-help"
+              value={draft.accessibilityNeedsText}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  accessibilityNeedsText: event.target.value,
+                }))
+              }
+              placeholder={"Step-free access\nAccessible restroom"}
+            />
+            <small id="conversation-accessibility-help">Include access, seating, communication, or sensory needs.</small>
+          </label>
+
+          <label className="conversation-field" htmlFor="conversation-must-have">
+            <span>Must-haves</span>
+            <textarea
+              id="conversation-must-have"
+              rows={3}
+              maxLength={4000}
+              aria-describedby="conversation-must-have-help"
+              value={draft.mustHaveText}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  mustHaveText: event.target.value,
+                }))
+              }
+              placeholder={"Outdoor space\nLive music"}
+            />
+            <small id="conversation-must-have-help">Features or outcomes that are essential to the event.</small>
+          </label>
+
+          <label className="conversation-field" htmlFor="conversation-must-avoid">
+            <span>Things to avoid</span>
+            <textarea
+              id="conversation-must-avoid"
+              rows={3}
+              maxLength={4000}
+              aria-describedby="conversation-must-avoid-help"
+              value={draft.mustAvoidText}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  mustAvoidText: event.target.value,
+                }))
+              }
+              placeholder={"Loud fireworks\nSingle-use plastic"}
+            />
+            <small id="conversation-must-avoid-help">Constraints that should not be ignored in recommendations.</small>
+          </label>
+
+          <label className="conversation-field" htmlFor="conversation-cultural-notes">
+            <span>Cultural notes</span>
+            <textarea
+              id="conversation-cultural-notes"
+              rows={3}
+              maxLength={1000}
+              aria-describedby="conversation-cultural-notes-help"
+              value={draft.culturalNotes}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  culturalNotes: event.target.value,
+                }))
+              }
+              placeholder="Traditions, customs, or context you want respected."
+            />
+            <small id="conversation-cultural-notes-help">Provide the context you want the planner to preserve.</small>
+          </label>
+
+          <label className="conversation-field" htmlFor="conversation-special-requirements">
+            <span>Other special requirements</span>
+            <textarea
+              id="conversation-special-requirements"
+              rows={3}
+              maxLength={3000}
+              aria-describedby="conversation-special-requirements-help"
+              value={draft.specialRequirements}
+              onChange={(event) =>
+                setDraft((current) => ({
+                  ...current,
+                  specialRequirements: event.target.value,
+                }))
+              }
+              placeholder="Any other important planning instructions."
+            />
+            <small id="conversation-special-requirements-help">Additional details that do not fit the categories above.</small>
+          </label>
+        </div>
+      </section>
+
       {draft.assumptions.length > 0 && (
         <div className="conversation-assumption-note">
           <ShieldCheck

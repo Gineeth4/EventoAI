@@ -10,6 +10,9 @@
 
 import type { EventInput } from "@/types/event";
 import type { EventPlan } from "@/types/event-plan";
+import {
+  mergeAIEnhancementRecommendations,
+} from "@/lib/ai/merge-ai-recommendations";
 
 import { eventInputSchema } from "@/lib/validation/event-input";
 import { eventPlanSchema } from "@/lib/validation/event-plan";
@@ -64,8 +67,10 @@ export type GeneratedEventPlanResult =
   };
 
 // Reserve most of the response budget for planning and response overhead.
-const AI_REQUEST_TIMEOUT_MS = 7_000;
+const AI_REQUEST_TIMEOUT_MS = 11_000;
 const AI_ENHANCEMENT_OUTPUT_TOKEN_LIMIT = 650;
+
+
 
 function validatePlanningReadiness(event: EventInput): void {
   const missingFields: string[] = [];
@@ -212,29 +217,11 @@ export async function generateEventPlan(
 
     const enhancement = enhancementResult.data;
 
-    // AI can improve descriptions, not budget, timeline, or vendor status.
-    const recommendations = enhancement.recommendations.map(
-      (recommendation, index) => {
-        const localRecommendation =
-          local.plan.recommendations[index];
-
-        if (!localRecommendation) {
-          throw new EventoAIError(
-            "AI_ENHANCEMENT_COUNT_INVALID",
-            "Gemini returned too many recommendations.",
-            502,
-            false,
-          );
-        }
-
-        return {
-          ...localRecommendation,
-          title: recommendation.title,
-          description: recommendation.description,
-          whyItFits: recommendation.whyItFits,
-          tags: recommendation.tags,
-        };
-      },
+    // AI can improve ordinary recommendation copy, but cannot remove
+    // deterministic requirement-verification safeguards.
+    const recommendations = mergeAIEnhancementRecommendations(
+      local.plan.recommendations,
+      enhancement.recommendations,
     );
 
     const candidateResult = eventPlanSchema.safeParse({

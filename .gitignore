@@ -59,3 +59,26 @@ Desktop.ini
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+# Local environment files
+
+# Dependencies and build output
+
+
+# Local hosting configuration
+/.vercel/
+
+# Operating system and TypeScript artifacts
+
+/.pnp/
+# Other build output
+/dist/
+# Vercel local project configuration
+# Test and coverage output
+/blob-report/
+# Tool caches
+/.turbo/
+/.eslintcache
+pnpm-debug.log*
+lerna-debug.log*
+# TypeScript build information
+# Local editor settings

@@ -362,4 +362,76 @@ describe("saved event storage", () => {
 
     expect(storage.has(STORAGE_KEY)).toBe(false);
   });
+
+  it("preserves structured requirements in saved input and version snapshots", () => {
+    const input: SavedEventInput = {
+      ...sampleInput,
+      preferences: {
+        ...sampleInput.preferences,
+        dietaryRequirements: ["Vegetarian", "Nut-free"],
+        accessibilityNeeds: ["Step-free access"],
+        mustHave: ["Quiet room"],
+        mustAvoid: ["Fireworks"],
+        culturalNotes: "Respect the hosts' stated traditions.",
+      },
+      specialRequirements: "Allow time for quiet breaks.",
+    };
+
+    const saved = saveEventRecord({
+      id: "event-requirements",
+      input,
+      result: createSampleResult("Requirements-aware plan"),
+    });
+
+    expect(saved.input).toEqual(input);
+    expect(saved.versions[0].input).toEqual(input);
+
+    const restored = parseSavedEventsSnapshot(
+      storage.get(STORAGE_KEY) ?? "",
+    );
+
+    expect(restored[0].input.preferences.dietaryRequirements).toEqual([
+      "Vegetarian",
+      "Nut-free",
+    ]);
+    expect(restored[0].input.preferences.accessibilityNeeds).toEqual([
+      "Step-free access",
+    ]);
+    expect(restored[0].input.preferences.mustHave).toEqual([
+      "Quiet room",
+    ]);
+    expect(restored[0].input.preferences.mustAvoid).toEqual([
+      "Fireworks",
+    ]);
+    expect(restored[0].input.preferences.culturalNotes).toBe(
+      "Respect the hosts' stated traditions.",
+    );
+    expect(restored[0].input.specialRequirements).toBe(
+      "Allow time for quiet breaks.",
+    );
+  });
+
+  it("rejects saved records containing invalid structured requirement values", () => {
+    const saved = saveEventRecord({
+      id: "event-invalid-requirements",
+      input: sampleInput,
+      result: createSampleResult(),
+    });
+
+    const invalidRecord = {
+      ...saved,
+      input: {
+        ...saved.input,
+        preferences: {
+          ...saved.input.preferences,
+          dietaryRequirements: ["", "x".repeat(121)],
+        },
+        specialRequirements: "x".repeat(3001),
+      },
+    };
+
+    expect(
+      parseSavedEventsSnapshot(JSON.stringify([invalidRecord])),
+    ).toHaveLength(0);
+  });
 });

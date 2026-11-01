@@ -28,6 +28,42 @@ function isStringArray(value: unknown): value is string[] {
     value.every((item) => typeof item === "string");
 }
 
+function isOptionalRequirementArray(
+  value: Record<string, unknown>,
+  key: string,
+): boolean {
+  const candidate = value[key];
+
+  if (candidate === undefined) {
+    return true;
+  }
+
+  return (
+    Array.isArray(candidate) &&
+    candidate.length <= 30 &&
+    candidate.every(
+      (item) =>
+        typeof item === "string" &&
+        item.trim().length > 0 &&
+        item.trim().length <= 120,
+    )
+  );
+}
+
+function isOptionalBoundedString(
+  value: Record<string, unknown>,
+  key: string,
+  maximumLength: number,
+): boolean {
+  const candidate = value[key];
+
+  return (
+    candidate === undefined ||
+    (typeof candidate === "string" &&
+      candidate.length <= maximumLength)
+  );
+}
+
 function isValidDateTime(value: unknown): value is string {
   return typeof value === "string" &&
     value.length > 0 &&
@@ -125,7 +161,12 @@ function isSavedEventPreferences(
   return (
     isStringArray(value.preferredThemes) &&
     isStringArray(value.preferredStyles) &&
-    typeof value.notes === "string"
+    typeof value.notes === "string" &&
+    isOptionalRequirementArray(value, "dietaryRequirements") &&
+    isOptionalRequirementArray(value, "accessibilityNeeds") &&
+    isOptionalRequirementArray(value, "mustHave") &&
+    isOptionalRequirementArray(value, "mustAvoid") &&
+    isOptionalBoundedString(value, "culturalNotes", 1000)
   );
 }
 
@@ -145,7 +186,8 @@ function isSavedEventInput(value: unknown): value is SavedEventInput {
     isSavedEventLocation(value.location) &&
     isSavedEventBudget(value.budget) &&
     isSavedEventPreferences(value.preferences) &&
-    isStringArray(value.planningPriorities)
+    isStringArray(value.planningPriorities) &&
+    isOptionalBoundedString(value, "specialRequirements", 3000)
   );
 }
 

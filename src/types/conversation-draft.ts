@@ -19,6 +19,12 @@ export type ConversationDraft = {
   themes: string[];
   styles: string[];
   notes: string;
+  dietaryRequirementsText: string;
+  accessibilityNeedsText: string;
+  mustHaveText: string;
+  mustAvoidText: string;
+  culturalNotes: string;
+  specialRequirements: string;
   planningPriorities: string[];
   assumptions: string[];
 };

@@ -306,4 +306,62 @@ describe("analyzeEventBrief", () => {
       "do not establish current supplier prices",
     );
   });
+
+  it("creates verification actions for explicit guest and event requirements", () => {
+    const report = analyzeEventBrief(
+      makeBrief({
+        preferences: {
+          dietaryRequirements: ["Vegetarian", "Nut-free"],
+          accessibilityNeeds: ["Step-free access"],
+          mustHave: ["Quiet room"],
+          mustAvoid: ["Fireworks"],
+          culturalNotes: "Respect the hosts' stated traditions.",
+          preferredThemes: BASE_BRIEF.preferences.preferredThemes,
+          preferredStyles: BASE_BRIEF.preferences.preferredStyles,
+          notes: "",
+        },
+        specialRequirements: "Provide a quiet space for breaks.",
+      }),
+      FIXED_TODAY,
+    );
+
+    const actions = report.priorityActions.join(" ").toLowerCase();
+
+    expect(actions).toContain("dietary requirements");
+    expect(actions).toContain("accessible routes");
+    expect(actions).toContain("must-have and must-avoid");
+    expect(actions).toContain("cultural guidance");
+    expect(actions).toContain("special requirements");
+
+    expect(
+      report.insights.some(
+        (insight) => insight.code === "guest_requirements_review",
+      ),
+    ).toBe(true);
+  });
+
+  it("does not penalize brief coverage when optional requirements are supplied", () => {
+    const withoutRequirements = analyzeEventBrief(
+      BASE_BRIEF,
+      FIXED_TODAY,
+    );
+
+    const withRequirements = analyzeEventBrief(
+      makeBrief({
+        preferences: {
+          ...BASE_BRIEF.preferences,
+          dietaryRequirements: ["Vegetarian"],
+          accessibilityNeeds: ["Step-free access"],
+          mustHave: ["Quiet room"],
+          mustAvoid: ["Fireworks"],
+        },
+        specialRequirements: "Allow time for a quiet break.",
+      }),
+      FIXED_TODAY,
+    );
+
+    expect(withRequirements.coverageScore).toBe(
+      withoutRequirements.coverageScore,
+    );
+  });
 });

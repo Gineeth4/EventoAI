@@ -597,6 +597,45 @@ Do not include credentials, private user data, or sensitive configuration in com
 
 ---
 
+
+## Current Release Verification
+
+### Automated checks
+
+- ESLint passed.
+- TypeScript validation passed.
+- 262 unit tests passed across 31 test files.
+- Optimized Next.js production build passed.
+
+### Integration verification
+
+- Gemini browser-based event generation verified.
+- Supabase saving and loading verified.
+- Event regeneration and version restoration verified.
+- Soft deletion and persistence after refresh verified.
+- Live Upstash Redis rate limiting verified.
+
+These results describe the tested local revision and do not mean it has been deployed.
+
+### Environment variables
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+GEMINI_API_KEY=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
+Never commit actual credentials or tokens.
+
+### Project links
+
+- GitHub: https://github.com/Gineeth4/EventoAI
+- Existing hosted demo: https://eventoai.vercel.app
+
+The hosted demo may continue serving an earlier revision until the latest changes are deployed.
+
 ## 17. License
 
 No license file has been declared for this repository yet.

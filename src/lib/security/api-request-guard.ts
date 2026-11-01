@@ -26,18 +26,73 @@ type WindowBucket = {
 };
 
 /**
- * Browser POST requests should be same-origin. Requests without an
- * Origin header are allowed for non-browser callers; this is not auth.
+ * Resolve the browser-facing origin.
+ *
+ * Next.js may expose an internal request URL behind a reverse proxy.
+ * Trust forwarded host/protocol headers only on Vercel.
+ * For other deployments, use the incoming Host header.
+ */
+function getExpectedRequestOrigin(request: Request): string | null {
+  let requestUrl: URL;
+
+  try {
+    requestUrl = new URL(request.url);
+  } catch {
+    return null;
+  }
+
+  const isVercel = process.env.VERCEL === "1";
+  const forwardedHost = isVercel
+    ? request.headers.get("x-forwarded-host")?.split(",")[0]?.trim()
+    : null;
+  const forwardedProtocol = isVercel
+    ? request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim()
+    : null;
+
+  const host =
+    forwardedHost ||
+    request.headers.get("host")?.trim() ||
+    requestUrl.host;
+
+  const protocol = (forwardedProtocol || requestUrl.protocol)
+    .replace(/:$/, "")
+    .toLowerCase();
+
+  if (protocol !== "http" && protocol !== "https") {
+    return null;
+  }
+
+  try {
+    return new URL(protocol + "://" + host).origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Require browser POST requests to match the browser-facing origin.
+ * Non-browser calls without Origin remain supported and still require
+ * authentication and rate limiting in the API route.
  */
 export function isSameOriginRequest(request: Request): boolean {
+  if (request.headers.get("sec-fetch-site")?.toLowerCase() === "cross-site") {
+    return false;
+  }
+
   const origin = request.headers.get("origin");
 
   if (!origin) {
     return true;
   }
 
+  const expectedOrigin = getExpectedRequestOrigin(request);
+
+  if (!expectedOrigin) {
+    return false;
+  }
+
   try {
-    return new URL(origin).origin === new URL(request.url).origin;
+    return new URL(origin).origin === expectedOrigin;
   } catch {
     return false;
   }

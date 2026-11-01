@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import "./globals.css";
 import "./design-system.css";
-import "./landing-page.css";
+
 
 export const metadata: Metadata = {
   title: {

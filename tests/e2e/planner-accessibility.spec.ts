@@ -17,6 +17,7 @@ async function auditStep(page: Page, name: string) {
 }
 
 test("authenticated planner journey is accessible at every stage", async ({ page }) => {
+  test.setTimeout(60_000);
   const email = process.env.E2E_TEST_EMAIL;
   const password = process.env.E2E_TEST_PASSWORD;
 
@@ -26,11 +27,40 @@ test("authenticated planner journey is accessible at every stage", async ({ page
   }
 
   await page.goto("/login?next=%2Fplan");
-  await page.getByLabel("Email address").fill(email);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
 
-  let authenticationError = "";
+  const emailField = page.getByLabel("Email address");
+  const passwordField = page.getByLabel("Password");
+  const signInButton = page.getByRole("button", { name: "Sign in" });
+  const authDiagnostics: string[] = [];
+
+  page.on("request", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === "/auth/v1/token") {
+      authDiagnostics.push("Supabase password-auth request started.");
+    }
+  });
+
+  page.on("response", (response) => {
+    const url = new URL(response.url());
+    if (url.pathname === "/auth/v1/token") {
+      authDiagnostics.push(`Supabase auth responded with HTTP ${response.status()}.`);
+    }
+  });
+
+  page.on("requestfailed", (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === "/auth/v1/token") {
+      authDiagnostics.push(
+        `Supabase auth network failure: ${request.failure()?.errorText ?? "unknown"}.`
+      );
+    }
+  });
+
+  await emailField.fill(email);
+  await passwordField.fill(password);
+  await signInButton.click();
+
+  let authWaitError = "";
 
   try {
     await page.waitForFunction(
@@ -39,19 +69,36 @@ test("authenticated planner journey is accessible at every stage", async ({ page
       null,
       { timeout: 15000 }
     );
-
-    if (new URL(page.url()).pathname !== "/plan") {
-      authenticationError = (await page.getByRole("alert").first().innerText()).trim();
-    }
-  } finally {
-    if (new URL(page.url()).pathname !== "/plan") {
-      await page.getByLabel("Password").fill("");
-      await page.getByLabel("Email address").fill("");
-    }
+  } catch (error) {
+    authWaitError = error instanceof Error ? error.message : "Unknown wait error.";
   }
 
-  if (authenticationError) {
-    throw new Error(`Supabase sign-in rejected: ${authenticationError}`);
+  if (new URL(page.url()).pathname !== "/plan") {
+    const alertMessage = await page.getByRole("alert").first()
+      .innerText().catch(() => "");
+    const buttonState = await signInButton.evaluate(
+      (button: HTMLButtonElement) =>
+        `${button.innerText.trim()} (disabled=${button.disabled})`
+    ).catch(() => "unavailable");
+
+    // Do not wait for disabled inputs while authentication is pending.
+    if (await passwordField.isEnabled()) await passwordField.fill("");
+    if (await emailField.isEnabled()) await emailField.fill("");
+
+    const networkSummary = authDiagnostics.length
+      ? authDiagnostics.join(" ")
+      : "No Supabase password-auth request was observed.";
+
+    if (alertMessage) {
+      throw new Error(
+        `Supabase sign-in rejected: ${alertMessage} ${networkSummary}`
+      );
+    }
+
+    throw new Error(
+      `Sign-in did not reach /plan. ${networkSummary} ` +
+      `Button state: ${buttonState}. ${authWaitError}`
+    );
   }
 
   expect(new URL(page.url()).pathname).toBe("/plan");
@@ -59,6 +106,94 @@ test("authenticated planner journey is accessible at every stage", async ({ page
     name: "Let's shape something memorable."
   })).toBeVisible();
 
+
+  // Audit the authenticated My Events workspace.
+  await page.goto("/events");
+
+  await expect(
+    page.getByRole("heading", { name: "My Events" }),
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole("status").filter({
+      hasText: /Loaded \d+ event\(s\) from your account\./,
+    }),
+  ).toBeVisible();
+
+  await auditStep(page, "My Events");
+
+  // Exercise saved-plan disclosure when the account has saved events.
+  const savedPlanToggle = page.locator(".events-toggle-button").first();
+
+  if (await savedPlanToggle.count() > 0) {
+    const controlledId = await savedPlanToggle.getAttribute("aria-controls");
+    expect(controlledId).toBeTruthy();
+
+    await savedPlanToggle.click();
+    await expect(savedPlanToggle).toHaveAttribute("aria-expanded", "true");
+    await expect(page.locator(`[id="${controlledId}"]`)).toBeVisible();
+
+    await auditStep(page, "Expanded saved plan");
+  }
+
+  // Exercise version history when an event is available.
+  const historyToggle = page.getByRole("button", {
+    name: /Version history/,
+  }).first();
+
+  if (await historyToggle.count() > 0) {
+    const historyId = await historyToggle.getAttribute("aria-controls");
+    expect(historyId).toBeTruthy();
+
+    await historyToggle.click();
+    await expect(historyToggle).toHaveAttribute("aria-expanded", "true");
+
+    await expect(
+      page.locator(`[id="${historyId}"] .event-version-list`),
+    ).toBeVisible();
+
+    await auditStep(page, "Expanded version history");
+  }
+
+  // Exercise the edit form when an event exists.
+  const editButton = page.getByRole("button", {
+    name: "Edit and regenerate",
+  }).first();
+
+  if (await editButton.count() > 0) {
+    await editButton.click();
+
+    await expect(
+      page.getByRole("heading", { name: "Edit event details" }),
+    ).toBeVisible();
+
+    await auditStep(page, "Saved event edit form");
+
+    const eventTypeField = page.getByLabel("Event type").first();
+    await eventTypeField.focus();
+
+    const focusStyles = await eventTypeField.evaluate((element) => {
+      const styles = window.getComputedStyle(element);
+      return {
+        outlineStyle: styles.outlineStyle,
+        outlineWidth: styles.outlineWidth,
+      };
+    });
+
+    expect(
+      focusStyles.outlineStyle !== "none" &&
+      focusStyles.outlineWidth !== "0px",
+    ).toBe(true);
+
+    await page.getByRole("button", { name: "Cancel editing" }).click();
+  }
+
+  // Return to the planner journey.
+  await page.goto("/plan");
+
+  await expect(page.getByRole("heading", {
+    name: "Let's shape something memorable."
+  })).toBeVisible();
   // 1. Idea
   await auditStep(page, "Idea");
   await page.getByRole("textbox", { name: "Describe your event" })
@@ -121,4 +256,113 @@ test("authenticated planner journey is accessible at every stage", async ({ page
   // 8. Review
   await expect(page.getByText("Suggested event title")).toBeVisible();
   await auditStep(page, "Review");
+
+  // Verify the optional structured requirements are accessible.
+  await page.getByLabel("Dietary requirements").fill(
+    "Vegetarian\nNut-free",
+  );
+  await page.getByLabel("Accessibility needs").fill(
+    "Step-free access\nAccessible restroom",
+  );
+  await page.getByLabel("Must-haves").fill("Quiet room");
+  await page.getByLabel("Things to avoid").fill("Fireworks");
+  await page.getByLabel("Cultural notes").fill(
+    "Respect the hosts' stated traditions.",
+  );
+  await page.getByLabel("Other special requirements").fill(
+    "Provide a quiet space for breaks.",
+  );
+
+  await expect(page.getByLabel("Dietary requirements"))
+    .toHaveAccessibleDescription("One requirement per line; up to 30 items.");
+
+  await expect(page.getByLabel("Accessibility needs"))
+    .toHaveAccessibleDescription("Include access, seating, communication, or sensory needs.");
+
+  await expect(page.getByLabel("Must-haves"))
+    .toHaveAccessibleDescription("Features or outcomes that are essential to the event.");
+
+  await expect(page.getByLabel("Things to avoid"))
+    .toHaveAccessibleDescription("Constraints that should not be ignored in recommendations.");
+
+  await expect(page.getByLabel("Cultural notes"))
+    .toHaveAccessibleDescription("Provide the context you want the planner to preserve.");
+
+  await expect(page.getByLabel("Other special requirements"))
+    .toHaveAccessibleDescription("Additional details that do not fit the categories above.");
+  // Keyboard navigation and visible focus indicator.
+  const lastRequirementField = page.getByLabel("Other special requirements");
+  await lastRequirementField.focus();
+  await page.keyboard.press("Tab");
+
+  const backButton = page.getByRole("button", { name: "Back" });
+  await expect(backButton).toBeFocused();
+
+  const focusIndicator = await backButton.evaluate((element) => {
+    const styles = window.getComputedStyle(element);
+
+    return {
+      outlineStyle: styles.outlineStyle,
+      outlineWidth: styles.outlineWidth,
+      boxShadow: styles.boxShadow,
+    };
+  });
+
+  expect(
+    (focusIndicator.outlineStyle !== "none" &&
+      focusIndicator.outlineWidth !== "0px") ||
+      focusIndicator.boxShadow !== "none",
+    "The Back button should have a visible keyboard focus indicator.",
+  ).toBe(true);
+  await auditStep(page, "Review with structured requirements");
+
+  await expect.poll(
+    () => page.evaluate(() => {
+      const raw = window.sessionStorage.getItem(
+        "eventoai:conversation-draft:v1",
+      );
+
+      if (!raw) return null;
+
+      try {
+        const snapshot = JSON.parse(raw);
+        return snapshot.draft?.dietaryRequirementsText ?? null;
+      } catch {
+        return null;
+      }
+    }),
+  ).toBe("Vegetarian\nNut-free");
+
+  // Reload and verify that the complete requirement set is restored.
+  await page.reload();
+
+  await expect(page.getByLabel("Dietary requirements"))
+    .toHaveValue("Vegetarian\nNut-free");
+
+  await expect(page.getByLabel("Accessibility needs"))
+    .toHaveValue("Step-free access\nAccessible restroom");
+
+  await expect(page.getByLabel("Must-haves"))
+    .toHaveValue("Quiet room");
+
+  await expect(page.getByLabel("Things to avoid"))
+    .toHaveValue("Fireworks");
+
+  await expect(page.getByLabel("Cultural notes"))
+    .toHaveValue("Respect the hosts' stated traditions.");
+
+  await expect(page.getByLabel("Other special requirements"))
+    .toHaveValue("Provide a quiet space for breaks.");
+
+  await auditStep(page, "Restored review with requirements");
+
+  // 9. Verify browser sign-out and its same-origin POST protection.
+  await page.getByRole("button", { name: "Sign out" }).click();
+
+  await page.waitForURL((url) =>
+    url.pathname === "/login" &&
+    url.searchParams.get("message") === "signed-out"
+  );
+
+  await expect(page.getByLabel("Email address")).toBeVisible();
 });

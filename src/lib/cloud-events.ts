@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+
 import {
   parseSavedEventsSnapshot,
   readSavedEvents,
@@ -6,6 +6,13 @@ import {
 import type { SavedEventRecord } from "@/types/saved-event";
 
 const CLOUD_CHANGE_EVENT = "eventoai:cloud-events-changed";
+
+async function createCloudClient() {
+  const { createClient } = await import("@/lib/supabase/client");
+  return createClient();
+}
+
+type CloudClient = Awaited<ReturnType<typeof createCloudClient>>;
 
 type CloudEventRow = {
   id: string;
@@ -39,7 +46,7 @@ export function subscribeToCloudEvents(
 }
 
 async function requireAuthenticatedUser(
-  client: ReturnType<typeof createClient>,
+  client: CloudClient,
 ) {
   const { data, error } = await client.auth.getUser();
 
@@ -90,7 +97,7 @@ function validateCloudRows(rows: unknown): CloudEventRow[] {
 }
 
 async function fetchCloudRows(
-  client: ReturnType<typeof createClient>,
+  client: CloudClient,
   userId: string,
 ): Promise<CloudEventRow[]> {
   const { data, error } = await client
@@ -106,7 +113,7 @@ async function fetchCloudRows(
 }
 
 export async function loadCloudEvents(): Promise<SavedEventRecord[]> {
-  const client = createClient();
+  const client = await createCloudClient();
   const user = await requireAuthenticatedUser(client);
   const rows = await fetchCloudRows(client, user.id);
 
@@ -123,7 +130,7 @@ export async function loadCloudEvents(): Promise<SavedEventRecord[]> {
 export async function saveCloudEvent(
   record: SavedEventRecord,
 ): Promise<void> {
-  const client = createClient();
+  const client = await createCloudClient();
   const user = await requireAuthenticatedUser(client);
   const rows = await fetchCloudRows(client, user.id);
   const existing = rows.find((row) => row.id === record.id);
@@ -204,7 +211,7 @@ export async function saveCloudEvent(
  * copy from silently recreating the deleted event.
  */
 export async function deleteCloudEvent(id: string): Promise<void> {
-  const client = createClient();
+  const client = await createCloudClient();
   const user = await requireAuthenticatedUser(client);
   const rows = await fetchCloudRows(client, user.id);
   const existing = rows.find((row) => row.id === id);
@@ -244,7 +251,7 @@ export async function deleteCloudEvent(id: string): Promise<void> {
  * A tombstone counts as an existing ID and must never be re-imported.
  */
 export async function getImportableLocalEventCount(): Promise<number> {
-  const client = createClient();
+  const client = await createCloudClient();
   const user = await requireAuthenticatedUser(client);
   const [rows] = await Promise.all([
     fetchCloudRows(client, user.id),
@@ -267,7 +274,7 @@ export async function importLocalEventsToCloud(): Promise<{
   skippedCount: number;
   cloudCount: number;
 }> {
-  const client = createClient();
+  const client = await createCloudClient();
   const user = await requireAuthenticatedUser(client);
   const localRecords = readSavedEvents();
   const rows = await fetchCloudRows(client, user.id);

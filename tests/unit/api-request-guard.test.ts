@@ -24,6 +24,41 @@ describe("API request guard", () => {
     expect(isSameOriginRequest(request)).toBe(true);
   });
 
+  it("uses the browser-facing Host when the internal URL differs", () => {
+    vi.stubEnv("VERCEL", "");
+
+    const request = new Request("http://localhost:3000/api/ai/plan", {
+      headers: {
+        origin: "http://127.0.0.1:3003",
+        host: "127.0.0.1:3003",
+      },
+    });
+
+    expect(isSameOriginRequest(request)).toBe(true);
+  });
+
+  it("uses trusted forwarded host and protocol on Vercel", () => {
+    vi.stubEnv("VERCEL", "1");
+
+    const request = new Request("http://internal:3000/api/ai/plan", {
+      headers: {
+        origin: "https://eventoai.example",
+        host: "internal:3000",
+        "x-forwarded-host": "eventoai.example",
+        "x-forwarded-proto": "https",
+      },
+    });
+
+    expect(isSameOriginRequest(request)).toBe(true);
+  });
+
+  it("rejects cross-site Fetch Metadata even without an Origin header", () => {
+    const request = new Request("http://localhost:3000/api/ai/plan", {
+      headers: { "sec-fetch-site": "cross-site" },
+    });
+
+    expect(isSameOriginRequest(request)).toBe(false);
+  });
   it("rejects a cross-origin browser request", () => {
     const request = new Request("http://localhost:3000/api/ai/plan", {
       method: "POST",

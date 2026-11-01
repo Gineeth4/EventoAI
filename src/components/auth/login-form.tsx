@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/client";
+
 import { getSafeNextPath } from "@/lib/auth/safe-next-path";
 
 export default function LoginForm() {
@@ -40,6 +40,7 @@ export default function LoginForm() {
     setNotice("");
 
     try {
+      const { createClient } = await import("@/lib/supabase/client");
       const supabase = createClient();
       const nextPath = getSafeNextPath(
         new URLSearchParams(window.location.search).get("next"),

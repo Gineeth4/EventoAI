@@ -19,7 +19,8 @@ export type PlanningInsightCode =
   | "large_guest_count"
   | "low_contingency_reserve"
   | "verify_costs"
-  | "set_planning_priorities";
+  | "set_planning_priorities"
+  | "guest_requirements_review";
 
 export type EventBriefForAnalysis = {
   eventType: string;
@@ -43,9 +44,15 @@ export type EventBriefForAnalysis = {
     preferredThemes: string[];
     preferredStyles: string[];
     notes?: string;
+    dietaryRequirements?: string[];
+    accessibilityNeeds?: string[];
+    mustHave?: string[];
+    mustAvoid?: string[];
+    culturalNotes?: string;
   };
 
   planningPriorities?: string[];
+  specialRequirements?: string;
 };
 
 export type PlanningInsight = {
@@ -220,6 +227,39 @@ function createPriorityActions(
     );
   }
 
+  if (brief.preferences.dietaryRequirements?.length) {
+    actions.push(
+      "Confirm dietary requirements, ingredient information, food handling, and cross-contact controls directly with the caterer before approving a menu.",
+    );
+  }
+
+  if (brief.preferences.accessibilityNeeds?.length) {
+    actions.push(
+      "Confirm accessible routes, entrances, restrooms, seating, and any communication or sensory arrangements directly with the venue.",
+    );
+  }
+
+  if (
+    brief.preferences.mustHave?.length ||
+    brief.preferences.mustAvoid?.length
+  ) {
+    actions.push(
+      "Turn must-have and must-avoid items into a written venue and supplier checklist; confirm feasibility and exclusions before making commitments.",
+    );
+  }
+
+  if (brief.preferences.culturalNotes?.trim()) {
+    actions.push(
+      "Review the cultural guidance with the event hosts before finalizing food, ceremonies, scheduling, entertainment, or other relevant details.",
+    );
+  }
+
+  if (brief.specialRequirements?.trim()) {
+    actions.push(
+      "Review special requirements with the responsible planner and relevant suppliers; record who will verify each one.",
+    );
+  }
+
   return [...new Set(actions)];
 }
 
@@ -326,6 +366,27 @@ function createInsights(
         "The brief does not yet identify which outcomes matter most when trade-offs arise.",
       recommendedAction:
         "Choose the priorities that should guide decisions, such as budget control, guest experience, accessibility, or sustainability.",
+    });
+  }
+
+  const hasGuestRequirements = Boolean(
+    brief.preferences.dietaryRequirements?.length ||
+    brief.preferences.accessibilityNeeds?.length ||
+    brief.preferences.mustHave?.length ||
+    brief.preferences.mustAvoid?.length ||
+    brief.preferences.culturalNotes?.trim() ||
+    brief.specialRequirements?.trim()
+  );
+
+  if (hasGuestRequirements) {
+    insights.push({
+      code: "guest_requirements_review",
+      severity: "warning",
+      title: "Confirm guest needs and event constraints",
+      message:
+        "The brief includes specific guest or event requirements. A plan can account for these details, but venue and supplier capabilities are not confirmed by the plan. Dietary safety and accessibility arrangements must be checked directly.",
+      recommendedAction:
+        "Confirm the relevant requirements with the venue and suppliers, identify a responsible person for each, and record any unresolved constraint before booking.",
     });
   }
 
